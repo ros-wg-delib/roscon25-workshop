@@ -1,0 +1,22 @@
+[workspace]
+authors = [
+    "Sebastian Castro <sebas.a.castro@gmail.com>",
+    "Christian Henkel <christian.henkel 2@de.bosch.com>",
+]
+channels = ["robostack-kilted", "conda-forge"]
+name = "roscon2025"
+platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+build = "colcon build --symlink-install"
+pyrobosim_demo = "ros2 launch pyrobosim_ros demo.launch.py"
+
+[dependencies]
+ros-kilted-ros-core = ">=0.12.0,<0.13"
+stable-baselines3 = ">=2.6.0,<3"
+setuptools = ">=78.1.1,<80.0.0"
+scipy = ">=1.16.0,<2"
+
+[activation]
+scripts = ["install/setup.sh"]
