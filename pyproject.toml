@@ -1,5 +1,9 @@
 [project]
 name = "roscon2025"
+authors = [
+  {name = "Sebastian Castro", email = "sebas.a.castro@gmail.com"},
+  {name = "Christian Henkel", email = "christian.henkel 2@de.bosch.com"},
+]
 version = "0.1.0"
 requires-python = ">=3.12, <3.13"
 
