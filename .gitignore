@@ -1,4 +1,5 @@
 .pixi
+.ruff_cache
 
 build/
 install/
