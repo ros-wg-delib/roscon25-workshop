@@ -351,7 +351,6 @@ environments:
       - conda: https://conda.anaconda.org/robostack-kilted/linux-64/ros2-distro-mutex-0.10.0-kilted_10.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rosdistro-1.0.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rospkg-1.6.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.12.3-hf9daec2_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.16.0-py312hf734454_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-79.0.1-pyhff2d567_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhd8ed1ab_0.conda
@@ -712,7 +711,6 @@ environments:
       - conda: https://conda.anaconda.org/robostack-kilted/osx-64/ros2-distro-mutex-0.10.0-kilted_10.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rosdistro-1.0.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rospkg-1.6.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.12.3-h6cc4cfe_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/scipy-1.16.0-py312hd0c0319_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-79.0.1-pyhff2d567_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhd8ed1ab_0.conda
@@ -1075,7 +1073,6 @@ environments:
       - conda: https://conda.anaconda.org/robostack-kilted/osx-arm64/ros2-distro-mutex-0.10.0-kilted_10.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rosdistro-1.0.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rospkg-1.6.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.12.3-h575f11b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/scipy-1.16.0-py312hcedbd36_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-79.0.1-pyhff2d567_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhd8ed1ab_0.conda
@@ -1425,7 +1422,6 @@ environments:
       - conda: https://conda.anaconda.org/robostack-kilted/win-64/ros2-distro-mutex-0.10.0-kilted_10.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rosdistro-1.0.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rospkg-1.6.0-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/ruff-0.12.3-hd40eec1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/scipy-1.16.0-py312h1416ca1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/setuptools-79.0.1-pyhff2d567_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/six-1.17.0-pyhd8ed1ab_0.conda
@@ -21119,55 +21115,6 @@ packages:
   license_family: BSD
   size: 31293
   timestamp: 1737835793379
-- conda: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.12.3-hf9daec2_0.conda
-  noarch: python
-  sha256: 6122fb3533f971b6cbc804ac38117f88a2d2587b3cace5625ac4f4ea35fcea4c
-  md5: 5fc0af4edc944829a128fc0c2715dfc3
-  depends:
-  - python
-  - __glibc >=2.17,<3.0.a0
-  - libgcc >=14
-  constrains:
-  - __glibc >=2.17
-  license: MIT
-  size: 9426440
-  timestamp: 1752279231770
-- conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.12.3-h6cc4cfe_0.conda
-  noarch: python
-  sha256: ee5359ffd42b1b7ce9fcad3751e08656f04545fc97ff490520080481717d2769
-  md5: 8d43036a9ced85de5305aaae824ca9c2
-  depends:
-  - python
-  - __osx >=10.13
-  constrains:
-  - __osx >=10.13
-  license: MIT
-  size: 9359525
-  timestamp: 1752279315369
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.12.3-h575f11b_0.conda
-  noarch: python
-  sha256: 4344a165a36186b5572ca46f1f539594d0a5b47a8ec8e60e3d5fa2aabd48d015
-  md5: d3adcbb65f501dff3ccde41b497b0f3e
-  depends:
-  - python
-  - __osx >=11.0
-  constrains:
-  - __osx >=11.0
-  license: MIT
-  size: 8732907
-  timestamp: 1752279338889
-- conda: https://conda.anaconda.org/conda-forge/win-64/ruff-0.12.3-hd40eec1_0.conda
-  noarch: python
-  sha256: 7d5eb827739e0be9caab699daf9a468324c153830129b6a86d6b8ef81d6025ba
-  md5: 8db0c930eedaf98a9a3476175c1c6c98
-  depends:
-  - python
-  - vc >=14.3,<15
-  - vc14_runtime >=14.44.35208
-  - ucrt >=10.0.20348.0
-  license: MIT
-  size: 9700006
-  timestamp: 1752279245806
 - conda: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.16.0-py312hf734454_0.conda
   sha256: 8406e26bf853e699b1ea97792f63987808783ff4ab6ddeff9cf1ec0b9d1aa342
   md5: 7513ac56209d27a85ffa1582033f10a8

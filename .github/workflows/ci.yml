@@ -30,6 +30,6 @@ jobs:
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
       - name: Run formatting
-        run: pixi run lint  
+        run: pixi run lint
       - name: Build the environment
         run: pixi run build

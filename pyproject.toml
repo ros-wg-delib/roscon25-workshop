@@ -2,7 +2,7 @@
 name = "roscon2025"
 authors = [
   {name = "Sebastian Castro", email = "sebas.a.castro@gmail.com"},
-  {name = "Christian Henkel", email = "christian.henkel 2@de.bosch.com"},
+  {name = "Christian Henkel", email = "christian.henkel2@de.bosch.com"},
 ]
 version = "0.1.0"
 requires-python = ">=3.12, <3.13"
@@ -18,15 +18,11 @@ ros-kilted-ros-core = ">=0.12.0,<0.13"
 stable-baselines3 = ">=2.6.0,<3"
 setuptools = ">=78.1.1,<80.0.0"
 scipy = ">=1.16.0,<2"
-ruff = ">=0.12.3,<0.13"
 
 [tool.pixi.tasks]
 build = "colcon build --symlink-install"
-lint = "ruff format"
+lint = "pre-commit run -a"
 pyrobosim_demo = "ros2 launch pyrobosim_ros demo.launch.py"
 
 [tool.pixi.activation]
 scripts = ["install/setup.sh"]
-
-[tool.ruff]
-exclude = ["pyrobosim"]

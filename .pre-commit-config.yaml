@@ -33,13 +33,14 @@ repos:
     rev: 25.1.0
     hooks:
       - id: black
-        exclude: ^technologies/FlexBE
+        exclude: ^pyrobosim
 
   # Finds spelling issues in code.
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
       - id: codespell
+        files: ^.*\.(py|md|yaml|yml)$
 
   # Finds issues in YAML files.
   - repo: https://github.com/adrienverge/yamllint
@@ -54,13 +55,6 @@ repos:
           ]
         types: [text]
         files: \.(yml|yaml)$
-
-  # Finds issues in markdown files.
-  - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.18.1
-    hooks:
-      - id: markdownlint-cli2
-        args: ["--fix"]
 
   # Checks links in markdown files.
   - repo: https://github.com/tcort/markdown-link-check
