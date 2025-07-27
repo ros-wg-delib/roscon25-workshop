@@ -35,3 +35,17 @@ You can also drop into a shell in the Pixi environment.
 ```bash
 pixi shell
 ```
+
+## Training a model
+
+```bash
+pixi run start_world --headless
+```
+
+```bash
+pixi run train
+```
+
+```bash
+pixi run eval
+```

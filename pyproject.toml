@@ -34,9 +34,11 @@ tqdm = ">=4.67.1,<5"
 [tool.pixi.tasks]
 build = "colcon build --symlink-install"
 lint = "pre-commit run -a"
+zenoh = "ros2 run rmw_zenoh_cpp rmw_zenohd"
 pyrobosim_demo = "ros2 launch pyrobosim_ros demo.launch.py"
 start_world = "python pyrobosim_ros_gym/start_world.py"
 train = "python pyrobosim_ros_gym/train.py"
+eval = "python pyrobosim_ros_gym/eval.py"
 
 [tool.pixi.activation]
 scripts = ["install/setup.sh"]

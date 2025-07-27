@@ -10,7 +10,7 @@ from rclpy.node import Node
 
 from pyrobosim_msgs.action import ExecuteTaskAction
 from pyrobosim_msgs.msg import ExecutionResult
-from pyrobosim_msgs.srv import RequestWorldState
+from pyrobosim_msgs.srv import RequestWorldInfo, RequestWorldState, ResetWorld
 
 
 class PyRoboSimRosEnv(gym.Env):
@@ -20,24 +20,51 @@ class PyRoboSimRosEnv(gym.Env):
         super().__init__()
         self.node = node
 
+        self.request_info_client = node.create_client(RequestWorldInfo, "/request_world_info")
         self.request_state_client = node.create_client(RequestWorldState, "/request_world_state")
-
         self.execute_action_client = ActionClient(node, ExecuteTaskAction, "/execute_action")
+        self.reset_world_client = node.create_client(ResetWorld, "reset_world")
+
+        future = self.request_info_client.call_async(RequestWorldInfo.Request())
+        rclpy.spin_until_future_complete(self.node, future)
+        self.world_info = future.result().info
+
+        future = self.request_state_client.call_async(RequestWorldState.Request())
+        rclpy.spin_until_future_complete(self.node, future)
+        world_state = future.result().state
+
+        self.all_locations = []
+        for loc in world_state.locations:
+            self.all_locations.extend(loc.spawns)
+        num_locations = sum(
+            len(loc.spawns) for loc in world_state.locations
+        )
+        self.loc_to_idx = {loc: idx for idx, loc in enumerate(self.all_locations)}
+
+        max_object_count = 5  # Max number of a type of object per location
+        num_object_types = len(self.world_info.object_categories)
+        self.obj_to_idx = {obj: idx for idx, obj in enumerate(self.world_info.object_categories)}
+
+        obs_size = (
+            num_locations   # number of locations robot can be in
+            + (num_object_types + 1)   # Object type robot is holding (including nothing)
+            + (num_locations * num_object_types)  # Number of object categories per location
+        )
 
         # Action space is defined by:
         #   Move: To all possible object spawns
-        #   Pick: To all specific object types
-        #   Place the current object
-        #   Detect at current location (optional)
-        self.action_space = spaces.Discrete(5)
+        #   TODO Pick: To all specific object types
+        #   TODO Place the current object
+        #   TODO Detect at current location (optional)
+        self.action_space = spaces.Discrete(num_locations)
 
         # Observation space is defined by:
         #  Location of robot
         #  Type of object robot is holding (including None)
         #  How many of each object type at each location
         self.observation_space = spaces.Box(
-            low=np.zeros(30, dtype=np.float32),
-            high=5.0 * np.ones(30, dtype=np.float32),
+            low=np.zeros(obs_size, dtype=np.float32),
+            high=max_object_count * np.ones(obs_size, dtype=np.float32),
         )
 
         self.step_number = 0
@@ -45,14 +72,13 @@ class PyRoboSimRosEnv(gym.Env):
 
 
     def step(self, action: int):
-        observation = self._get_obs()
         t_start = time.time()
         info = {}
 
         goal = ExecuteTaskAction.Goal()
         goal.action.robot = "robot"
         goal.action.type = "navigate"
-        goal.action.target_location = np.random.choice(["kitchen", "bedroom", "bathroom"])
+        goal.action.target_location = np.random.choice(self.all_locations)
 
         goal_future = self.execute_action_client.send_goal_async(goal)
         rclpy.spin_until_future_complete(self.node, goal_future)
@@ -66,39 +92,47 @@ class PyRoboSimRosEnv(gym.Env):
         self.step_number += 1
         truncated = (self.step_number >= self.max_steps_per_episode)
 
+        observation = self._get_obs()
+        robot_state = self.world_state.robots[0]
+
+        # Compute reward as being somewhere with a banana
         reward = -1.0 * t_elapsed
-        print(f"Completed step {self.step_number} in {t_elapsed} seconds")
+        for obj in self.world_state.objects:
+            if obj.parent == robot_state.last_visited_location and obj.category == "banana":
+                print(f"Robot is at {robot_state.last_visited_location} and next to {obj.name}. Terminated episode.")
+                reward += 10.0
+                terminated = True
+                break
+
+        # print(f"Completed step {self.step_number}. Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}")
 
         return observation, reward, terminated, truncated, info
 
     def reset(self, seed=None, options=None):
         # IMPORTANT: Must call this first to seed the random number generator
         super().reset(seed=seed)
+        print(f"Resetting environment")
         self.step_number = 0
+
+        future = self.reset_world_client.call_async(ResetWorld.Request())
+        rclpy.spin_until_future_complete(self.node, future)
 
         observation = self._get_obs()
         info = {}
 
         return observation, info
 
-    # def render(self):
-    #     pass
-
-    def close(self):
-        rclpy.shutdown()
-
     def _get_obs(self):
-        """Convert internal state to observation format.
-
-        Returns:
-            dict: Observation with agent and target positions
-        """
+        """Calculate the observation"""
         future = self.request_state_client.call_async(RequestWorldState.Request())
         rclpy.spin_until_future_complete(self.node, future)
         world_state = future.result().state
+        robot_state = world_state.robots[0]
 
-        num_locations = len(world_state.locations)  # TODO: Should be object spawns
-        num_object_types = 5  # TODO: Should come from world info
+        num_locations = sum(
+            len(loc.spawns) for loc in world_state.locations
+        )
+        num_object_types = len(self.world_info.object_categories)
 
         obs_size = (
             num_locations   # number of locations robot can be in
@@ -106,4 +140,27 @@ class PyRoboSimRosEnv(gym.Env):
             + (num_locations * num_object_types)  # Number of object categories per location
         )
 
-        return np.zeros(obs_size, dtype=np.float32)
+        obs = np.zeros(obs_size, dtype=np.float32)
+
+        # Robot's current location
+        if robot_state.last_visited_location in self.loc_to_idx:
+            loc_idx = self.loc_to_idx[robot_state.last_visited_location]
+            obs[loc_idx] = 1.0
+
+        # Robot's currently held object
+        start_idx = num_locations
+        if robot_state.manipulated_object:
+            pass  # TODO: Fill in once pick actions are added
+        else:
+            obs[start_idx] = 1.0
+
+        # Number of object categories per location
+        start_idx = num_locations + (num_object_types + 1)
+        for obj in world_state.objects:
+            obj_idx = self.obj_to_idx[obj.category]
+            loc_idx = self.loc_to_idx[obj.parent]
+            obs[start_idx + (loc_idx * num_object_types) + obj_idx] += 1.0
+
+        # print(f"    Observation: {obs}")
+        self.world_state = world_state
+        return obs
