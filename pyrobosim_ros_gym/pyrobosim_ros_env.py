@@ -9,14 +9,14 @@ from rclpy.action import ActionClient
 from rclpy.node import Node
 
 from pyrobosim_msgs.action import ExecuteTaskAction
-from pyrobosim_msgs.msg import ExecutionResult
+from pyrobosim_msgs.msg import ExecutionResult, TaskAction
 from pyrobosim_msgs.srv import RequestWorldInfo, RequestWorldState, ResetWorld
 
 
 class PyRoboSimRosEnv(gym.Env):
     """Gym environment wrapping around the PyRoboSim ROS Interface."""
 
-    def __init__(self, node: Node):
+    def __init__(self, node: Node, max_steps_per_episode=50):
         super().__init__()
         self.node = node
 
@@ -41,7 +41,6 @@ class PyRoboSimRosEnv(gym.Env):
         )
         self.loc_to_idx = {loc: idx for idx, loc in enumerate(self.all_locations)}
 
-        max_object_count = 5  # Max number of a type of object per location
         num_object_types = len(self.world_info.object_categories)
         self.obj_to_idx = {obj: idx for idx, obj in enumerate(self.world_info.object_categories)}
 
@@ -53,22 +52,32 @@ class PyRoboSimRosEnv(gym.Env):
 
         # Action space is defined by:
         #   Move: To all possible object spawns
-        #   TODO Pick: To all specific object types
+        #   Pick: To all specific object types
         #   TODO Place the current object
         #   TODO Detect at current location (optional)
-        self.action_space = spaces.Discrete(num_locations)
+        idx = 0
+        self.integer_to_action = {}
+        for loc in self.all_locations:
+            self.integer_to_action[idx] = TaskAction(type="navigate", target_location=loc)
+            idx += 1
+        for obj_category in self.world_info.object_categories:
+            self.integer_to_action[idx] = TaskAction(type="pick", object=obj_category)
+            idx += 1
+        # self.integer_to_action[idx] = TaskAction(type="place")  # TODO: Add reward for placing objects
+
+        self.action_space = spaces.Discrete(len(self.integer_to_action))
 
         # Observation space is defined by:
         #  Location of robot
         #  Type of object robot is holding (including None)
-        #  How many of each object type at each location
+        #  Whether there is at least one of a specific object type at each location
         self.observation_space = spaces.Box(
             low=np.zeros(obs_size, dtype=np.float32),
-            high=max_object_count * np.ones(obs_size, dtype=np.float32),
+            high=np.ones(obs_size, dtype=np.float32),
         )
 
         self.step_number = 0
-        self.max_steps_per_episode = 20
+        self.max_steps_per_episode = max_steps_per_episode
 
 
     def step(self, action: int):
@@ -76,9 +85,8 @@ class PyRoboSimRosEnv(gym.Env):
         info = {}
 
         goal = ExecuteTaskAction.Goal()
+        goal.action = self.integer_to_action[action]
         goal.action.robot = "robot"
-        goal.action.type = "navigate"
-        goal.action.target_location = np.random.choice(self.all_locations)
 
         goal_future = self.execute_action_client.send_goal_async(goal)
         rclpy.spin_until_future_complete(self.node, goal_future)
@@ -88,23 +96,32 @@ class PyRoboSimRosEnv(gym.Env):
 
         t_elapsed = time.time() - t_start
         action_result = result_future.result().result
-        terminated = (action_result.execution_result.status != ExecutionResult.SUCCESS)
         self.step_number += 1
         truncated = (self.step_number >= self.max_steps_per_episode)
+        if truncated:
+            print("Maximum steps per episode exceeded. Truncated episode.")
 
         observation = self._get_obs()
         robot_state = self.world_state.robots[0]
 
-        # Compute reward as being somewhere with a banana
+        # Compute reward as holding a banana
+        terminated = False
         reward = -1.0 * t_elapsed
+        if (action_result.execution_result.status != ExecutionResult.SUCCESS):
+            print("Robot failed executing an action. Terminated episode.")
+            reward -= 10.0
+            terminated = True
         for obj in self.world_state.objects:
-            if obj.parent == robot_state.last_visited_location and obj.category == "banana":
-                print(f"Robot is at {robot_state.last_visited_location} and next to {obj.name}. Terminated episode.")
-                reward += 10.0
-                terminated = True
-                break
-
-        # print(f"Completed step {self.step_number}. Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}")
+            if obj.category == "banana":
+                if obj.name == robot_state.manipulated_object:
+                    # Robot is holding a banana, so we give it a large reward.
+                    print(f"Robot is at {robot_state.last_visited_location} and holding {obj.name}. Episode succeeded!")
+                    reward += 10.0
+                    terminated = True
+                    break
+                elif obj.parent == robot_state.last_visited_location:
+                    # Robot is located near a banana, so we nudge it with some positive reward.
+                    reward += 2.0
 
         return observation, reward, terminated, truncated, info
 
@@ -150,17 +167,19 @@ class PyRoboSimRosEnv(gym.Env):
         # Robot's currently held object
         start_idx = num_locations
         if robot_state.manipulated_object:
-            pass  # TODO: Fill in once pick actions are added
-        else:
-            obs[start_idx] = 1.0
+            for obj in world_state.objects:
+                if obj.name == robot_state.manipulated_object:
+                     obs[start_idx + self.obj_to_idx[obj.category]] = 1.0
+                     break
 
-        # Number of object categories per location
+        # Object categories per location
         start_idx = num_locations + (num_object_types + 1)
         for obj in world_state.objects:
             obj_idx = self.obj_to_idx[obj.category]
-            loc_idx = self.loc_to_idx[obj.parent]
-            obs[start_idx + (loc_idx * num_object_types) + obj_idx] += 1.0
+            loc_idx = self.loc_to_idx.get(obj.parent)
+            if loc_idx is None:
+                continue
+            obs[start_idx + (loc_idx * num_object_types) + obj_idx] = 1.0
 
-        # print(f"    Observation: {obs}")
         self.world_state = world_state
         return obs

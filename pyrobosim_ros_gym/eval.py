@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-"""Evaluates an RL policy."""
+"""Evaluates a trained RL policy."""
+
+import argparse
 
 import rclpy
 from rclpy.node import Node
@@ -10,18 +12,20 @@ from pyrobosim_ros_env import PyRoboSimRosEnv
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model-name", help="The path to the model to evaluate.")
+    args = parser.parse_args()
+
     rclpy.init()
     node = Node("pyrobosim_ros_env")
-
-    env = PyRoboSimRosEnv(node)
+    env = PyRoboSimRosEnv(node, max_steps_per_episode=10)
 
     # Load a model
-    model_name = "PPO_model_2025_07_27_16_27_36.pt"  # Change me
-    model_type = "PPO"
+    model_type = args.model_name.split("_")[0]
     if model_type == "DQN":
-        model = DQN.load(model_name, env=env)
+        model = DQN.load(args.model_name, env=env)
     elif model_type == "PPO":
-        model = PPO.load(model_name, env=env)
+        model = PPO.load(args.model_name, env=env)
     else:
         raise RuntimeError(f"Invalid model type: {model_type}")
 
