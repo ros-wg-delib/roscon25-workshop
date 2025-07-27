@@ -167,10 +167,12 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/llvm-openmp-20.1.8-h4922eb0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/lttng-ust-2.13.9-hf5eda4c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/lxml-6.0.0-py312h68d7fa5_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/markdown-it-py-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.2-py312h178313f_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/matplotlib-3.10.5-py312h7900ff3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/matplotlib-base-3.10.5-py312he3d6523_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mccabe-0.7.0-pyhd8ed1ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mdurl-0.1.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/mkl-2024.2.2-ha957f24_16.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/mpc-1.3.1-h24ddda3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/mpfr-4.2.1-h90cbb55_3.conda
@@ -221,6 +223,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/qt6-main-6.9.1-h0384650_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/readline-8.2-h8c095d6_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/rhash-1.4.6-hb9d3cd8_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/rich-14.1.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/robostack-kilted/linux-64/ros-kilted-action-msgs-2.3.0-np126py312he556185_10.conda
       - conda: https://conda.anaconda.org/robostack-kilted/linux-64/ros-kilted-actionlib-msgs-5.5.0-np126py312he556185_10.conda
       - conda: https://conda.anaconda.org/robostack-kilted/linux-64/ros-kilted-ament-cmake-2.7.3-np126py312he556185_10.conda
@@ -406,6 +409,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.2.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tornado-6.5.1-py312h66e93f0_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/transforms3d-0.4.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/trimesh-4.7.1-pyh7b2049a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-extensions-4.10.0-hd8ed1ab_0.conda
@@ -583,10 +587,12 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/libzlib-1.3.1-hd23fc13_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/llvm-openmp-20.1.8-hf4e0ed4_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/lxml-6.0.0-py312h3ce7cfc_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/markdown-it-py-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/markupsafe-3.0.2-py312h3520af0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/matplotlib-3.10.5-py312hb401068_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/matplotlib-base-3.10.5-py312hb83d5b5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mccabe-0.7.0-pyhd8ed1ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mdurl-0.1.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/mkl-2023.2.0-h54c2260_50500.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/mpc-1.3.1-h9d8efa1_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/mpfr-4.2.1-haed47dc_3.conda
@@ -637,6 +643,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/qt6-main-6.9.1-h871930e_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/readline-8.2-h7cca4af_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/rhash-1.4.6-h6e16a3a_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/rich-14.1.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/robostack-kilted/osx-64/ros-kilted-action-msgs-2.3.0-np126py312h5da3fd6_10.conda
       - conda: https://conda.anaconda.org/robostack-kilted/osx-64/ros-kilted-actionlib-msgs-5.5.0-np126py312h5da3fd6_10.conda
       - conda: https://conda.anaconda.org/robostack-kilted/osx-64/ros-kilted-ament-cmake-2.7.3-np126py312h5da3fd6_10.conda
@@ -822,6 +829,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.2.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tornado-6.5.1-py312h01d7ebd_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/transforms3d-0.4.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/trimesh-4.7.1-pyh7b2049a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-extensions-4.10.0-hd8ed1ab_0.conda
@@ -978,10 +986,12 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/libzlib-1.3.1-h8359307_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/llvm-openmp-20.1.8-hbb9b287_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/lxml-6.0.0-py312hc2c121e_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/markdown-it-py-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/markupsafe-3.0.2-py312h998013c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/matplotlib-3.10.5-py312h1f38498_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/matplotlib-base-3.10.5-py312h05635fa_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mccabe-0.7.0-pyhd8ed1ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mdurl-0.1.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/mpc-1.3.1-h8f1351a_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/mpfr-4.2.1-hb693164_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mpmath-1.3.0-pyhd8ed1ab_1.conda
@@ -1032,6 +1042,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/qt6-main-6.9.1-h9cca212_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/readline-8.2-h1d1bf99_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/rhash-1.4.6-h5505292_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/rich-14.1.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/robostack-kilted/osx-arm64/ros-kilted-action-msgs-2.3.0-np126py312h9e87179_10.conda
       - conda: https://conda.anaconda.org/robostack-kilted/osx-arm64/ros-kilted-actionlib-msgs-5.5.0-np126py312h9e87179_10.conda
       - conda: https://conda.anaconda.org/robostack-kilted/osx-arm64/ros-kilted-ament-cmake-2.7.3-np126py312h9e87179_10.conda
@@ -1216,6 +1227,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.2.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tornado-6.5.1-py312hea69d52_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/transforms3d-0.4.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/trimesh-4.7.1-pyh7b2049a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-extensions-4.10.0-hd8ed1ab_0.conda
@@ -1357,10 +1369,12 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/libzenohc-1.4.0-h1a58a1c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/libzlib-1.3.1-h2466b09_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/lxml-6.0.0-py312hc85b015_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/markdown-it-py-3.0.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/markupsafe-3.0.2-py312h31fea79_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/matplotlib-3.10.5-py312h2e8e312_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/matplotlib-base-3.10.5-py312h0ebf65c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mccabe-0.7.0-pyhd8ed1ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/mdurl-0.1.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/mkl-2024.2.2-h66d3029_15.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/mpmath-1.3.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/munkres-1.1.4-pyhd8ed1ab_1.conda
@@ -1407,6 +1421,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/pyyaml-6.0.2-py312h31fea79_2.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/qhull-2020.2-hc790b64_5.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/qt6-main-6.9.1-h02ddd7d_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/rich-14.1.0-pyhe01879c_0.conda
       - conda: https://conda.anaconda.org/robostack-kilted/win-64/ros-kilted-action-msgs-2.3.0-np126py312h4d29ed4_10.conda
       - conda: https://conda.anaconda.org/robostack-kilted/win-64/ros-kilted-actionlib-msgs-5.5.0-np126py312h4d29ed4_10.conda
       - conda: https://conda.anaconda.org/robostack-kilted/win-64/ros-kilted-ament-cmake-2.7.3-np126py312h4d29ed4_10.conda
@@ -1592,6 +1607,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/toml-0.10.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tomli-2.2.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tornado-6.5.1-py312h4389bb4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/transforms3d-0.4.2-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/trimesh-4.7.1-pyh7b2049a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/typing-extensions-4.10.0-hd8ed1ab_0.conda
@@ -6753,6 +6769,18 @@ packages:
   - pkg:pypi/lxml?source=hash-mapping
   size: 1232795
   timestamp: 1751021843977
+- conda: https://conda.anaconda.org/conda-forge/noarch/markdown-it-py-3.0.0-pyhd8ed1ab_1.conda
+  sha256: 0fbacdfb31e55964152b24d5567e9a9996e1e7902fb08eb7d91b5fd6ce60803a
+  md5: fee3164ac23dfca50cfcc8b85ddefb81
+  depends:
+  - mdurl >=0.1,<1
+  - python >=3.9
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/markdown-it-py?source=hash-mapping
+  size: 64430
+  timestamp: 1733250550053
 - conda: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.2-py312h178313f_1.conda
   sha256: 4a6bf68d2a2b669fecc9a4a009abd1cf8e72c2289522ff00d81b5a6e51ae78f5
   md5: eb227c3e0bf58f5bd69c0532b157975b
@@ -7002,6 +7030,17 @@ packages:
   - pkg:pypi/mccabe?source=hash-mapping
   size: 12934
   timestamp: 1733216573915
+- conda: https://conda.anaconda.org/conda-forge/noarch/mdurl-0.1.2-pyhd8ed1ab_1.conda
+  sha256: 78c1bbe1723449c52b7a9df1af2ee5f005209f67e40b6e1d3c7619127c43b1c7
+  md5: 592132998493b3ff25fd7479396e8351
+  depends:
+  - python >=3.9
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/mdurl?source=hash-mapping
+  size: 14465
+  timestamp: 1733255681319
 - conda: https://conda.anaconda.org/conda-forge/linux-64/mkl-2024.2.2-ha957f24_16.conda
   sha256: 77906b0acead8f86b489da46f53916e624897338770dbf70b04b8f673c9273c1
   md5: 1459379c79dda834673426504d52b319
@@ -9029,6 +9068,21 @@ packages:
   purls: []
   size: 185448
   timestamp: 1748645057503
+- conda: https://conda.anaconda.org/conda-forge/noarch/rich-14.1.0-pyhe01879c_0.conda
+  sha256: 3bda3cd6aa2ca8f266aeb8db1ec63683b4a7252d7832e8ec95788fb176d0e434
+  md5: c41e49bd1f1479bed6c6300038c5466e
+  depends:
+  - markdown-it-py >=2.2.0
+  - pygments >=2.13.0,<3.0.0
+  - python >=3.9
+  - typing_extensions >=4.0.0,<5.0.0
+  - python
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/rich?source=compressed-mapping
+  size: 201098
+  timestamp: 1753436991345
 - conda: https://conda.anaconda.org/robostack-kilted/linux-64/ros-kilted-action-msgs-2.3.0-np126py312he556185_10.conda
   sha256: 5d2b432ae1acdd226a6532b74dc49ac86429469c2ff0f7a2ff3f29a0c94970f9
   md5: 455908ba54fba3a3a4516da4ecbca04b
@@ -23730,6 +23784,17 @@ packages:
   - pkg:pypi/tornado?source=hash-mapping
   size: 853357
   timestamp: 1748003925528
+- conda: https://conda.anaconda.org/conda-forge/noarch/tqdm-4.67.1-pyhd8ed1ab_1.conda
+  sha256: 11e2c85468ae9902d24a27137b6b39b4a78099806e551d390e394a8c34b48e40
+  md5: 9efbfdc37242619130ea42b1cc4ed861
+  depends:
+  - colorama
+  - python >=3.9
+  license: MPL-2.0 or MIT
+  purls:
+  - pkg:pypi/tqdm?source=hash-mapping
+  size: 89498
+  timestamp: 1735661472632
 - conda: https://conda.anaconda.org/conda-forge/noarch/transforms3d-0.4.2-pyhd8ed1ab_1.conda
   sha256: 2e018673c5e48d001e7e3e921567983ec322d732b6b389e7b534cc300d19c0c8
   md5: 711ff5140ada9166b4b4d914a0f2fe0a
