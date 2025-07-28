@@ -15,9 +15,10 @@ from pyrobosim_msgs.srv import RequestWorldInfo, RequestWorldState, ResetWorld
 class PyRoboSimRosEnv(gym.Env):
     """Gym environment wrapping around the PyRoboSim ROS Interface."""
 
-    def __init__(self, node, max_steps_per_episode=50):
+    def __init__(self, node, max_steps_per_episode=50, realtime=True):
         super().__init__()
         self.node = node
+        self.realtime = realtime
 
         self.request_info_client = node.create_client(RequestWorldInfo, "/request_world_info")
         self.request_state_client = node.create_client(RequestWorldState, "/request_world_state")
@@ -85,6 +86,7 @@ class PyRoboSimRosEnv(gym.Env):
         goal = ExecuteTaskAction.Goal()
         goal.action = self.integer_to_action[action]
         goal.action.robot = "robot"
+        goal.realtime_factor = 1.0 if self.realtime else -1.0
 
         goal_future = self.execute_action_client.send_goal_async(goal)
         rclpy.spin_until_future_complete(self.node, goal_future)

@@ -21,11 +21,12 @@ if __name__ == "__main__":
     parser.add_argument("--model-type", default="DQN", choices=["DQN", "PPO"], help="The model type to train.")
     parser.add_argument("--total-timesteps", default=10000, type=int, help="The number of total timesteps to train for.")
     parser.add_argument("--seed", default=42, type=int, help="The RNG seed to use.")
+    parser.add_argument("--realtime", action="store_true", help="If true, slows down to real time.")
     args = parser.parse_args()
 
     rclpy.init()
     node = Node("pyrobosim_ros_env")
-    env = PyRoboSimRosEnv(node, max_steps_per_episode=50)
+    env = PyRoboSimRosEnv(node, realtime=args.realtime, max_steps_per_episode=50)
 
     # Train a model
     if args.model_type == "DQN":
