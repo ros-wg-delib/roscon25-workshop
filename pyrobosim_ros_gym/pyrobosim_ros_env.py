@@ -15,7 +15,7 @@ from pyrobosim_msgs.srv import RequestWorldInfo, RequestWorldState, ResetWorld
 class PyRoboSimRosEnv(gym.Env):
     """Gym environment wrapping around the PyRoboSim ROS Interface."""
 
-    def __init__(self, node, max_steps_per_episode=20):
+    def __init__(self, node, max_steps_per_episode=50):
         super().__init__()
         self.node = node
 
@@ -105,12 +105,10 @@ class PyRoboSimRosEnv(gym.Env):
         terminated = False
 
         # Compute reward (TODO: Factor out)
-        # The farther away you travel, the less reward
-        # TODO: This should hopefully get a cost/distance from PyRoboSim itself instead of using time
-        reward = -1.0 * t_elapsed
+        reward = 0.0
         # Discourage repeating and failing actions
         if (goal.action.type == "navigate") and (goal.action.target_location == robot_state.last_visited_location):
-            reward -= 1.0
+            reward -= 0.5
         if (action_result.execution_result.status != ExecutionResult.SUCCESS):
             reward -= 0.5
         # Robot gets positive reward based on holding a banana.
@@ -118,7 +116,7 @@ class PyRoboSimRosEnv(gym.Env):
             if obj.category == "banana":
                 if obj.name == robot_state.manipulated_object:
                     print(f"Robot is at {robot_state.last_visited_location} and holding {obj.name}. Episode succeeded!")
-                    reward += 5.0
+                    reward += 10.0
                     terminated = True
                     break
 
@@ -127,7 +125,7 @@ class PyRoboSimRosEnv(gym.Env):
     def reset(self, seed=None, options=None):
         # IMPORTANT: Must call this first to seed the random number generator
         super().reset(seed=seed)
-        print(f"Resetting environment")
+        print(f"Resetting environment with seed: {seed}")
         self.step_number = 0
 
         future = self.reset_world_client.call_async(ResetWorld.Request())

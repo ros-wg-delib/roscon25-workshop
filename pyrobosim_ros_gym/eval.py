@@ -13,7 +13,8 @@ from pyrobosim_ros_env import PyRoboSimRosEnv
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model-name", help="The path to the model to evaluate.")
+    parser.add_argument("--model", help="The name of the model to evaluate.")
+    parser.add_argument("--num-episodes", default=10, type=int, help="The number of episodes to evaluate.")
     args = parser.parse_args()
 
     rclpy.init()
@@ -21,11 +22,11 @@ if __name__ == "__main__":
     env = PyRoboSimRosEnv(node, max_steps_per_episode=10)
 
     # Load a model
-    model_type = args.model_name.split("_")[0]
+    model_type = args.model.split("_")[0]
     if model_type == "DQN":
-        model = DQN.load(args.model_name, env=env)
+        model = DQN.load(args.model, env=env)
     elif model_type == "PPO":
-        model = PPO.load(args.model_name, env=env)
+        model = PPO.load(args.model, env=env)
     else:
         raise RuntimeError(f"Invalid model type: {model_type}")
 
@@ -33,7 +34,7 @@ if __name__ == "__main__":
     vec_env = model.get_env()
     obs = vec_env.reset()
     num_episodes = 0
-    while num_episodes < 10:
+    while num_episodes < args.num_episodes:
         action, _ = model.predict(obs, deterministic=True)
         obs, rewards, dones, info = vec_env.step(action)
         if dones[0]:

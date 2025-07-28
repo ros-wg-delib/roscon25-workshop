@@ -28,25 +28,15 @@ robots:
     max_angular_acceleration: 10.0
     # Rapidly-expanding Random Tree (RRT) planner
     path_planner:
-      type: rrt
-      # occupancy_grid:
-      #   resolution: 0.05
-      #   inflation_radius: 0.15
+      type: world_graph
       collision_check_step_dist: 0.025
-      max_connection_dist: 0.5
-      bidirectional: true
-      rrt_star: true
-      rewire_radius: 1.5
-      compress_path: false
     # Linear motion path executor
     path_executor:
       type: constant_velocity
-      linear_velocity: 1.0
-      max_angular_velocity: 4.0
-      dt: 0.1
-      validate_during_execution: true
-      validation_dt: 0.5
-      validation_step_dist: 0.025
+      linear_velocity: 1.5
+      max_angular_velocity: 6.0
+      dt: 0.25
+      validate_during_execution: false
 
     # Grasp generation
     grasping:
