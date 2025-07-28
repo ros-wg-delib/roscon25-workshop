@@ -7,8 +7,10 @@ from datetime import datetime
 
 import rclpy
 from rclpy.node import Node
-from stable_baselines3 import DQN, PPO
+from stable_baselines3 import DQN, PPO, SAC
 from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3.common.utils import set_random_seed
+from torch import nn
 
 from pyrobosim_ros_env import PyRoboSimRosEnv
 
@@ -16,20 +18,34 @@ from pyrobosim_ros_env import PyRoboSimRosEnv
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-type", default="DQN", choices=["DQN", "PPO"], help="The model type to train.")
-    parser.add_argument("--total-timesteps", default=1000, help="The number of total timesteps to train for.")
-    parser.add_argument("--gamma", default=0.95, help="The discount factor for RL.")
+    parser.add_argument("--total-timesteps", default=1000, type=int, help="The number of total timesteps to train for.")
+    parser.add_argument("--gamma", default=0.99, type=float, help="The discount factor for RL.")
+    parser.add_argument("--seed", default=42, type=int, help="The RNG seed to use.")
     args = parser.parse_args()
 
     rclpy.init()
     node = Node("pyrobosim_ros_env")
-    env = PyRoboSimRosEnv(node)
+    env = PyRoboSimRosEnv(node, max_steps_per_episode=50)
+
+    set_random_seed(args.seed)
 
     # Train a model
     if args.model_type == "DQN":
-        model = DQN("MlpPolicy", env=env, verbose=1, gamma=args.gamma, exploration_initial_eps=0.2, learning_starts=50, learning_rate=0.0001, batch_size=32, train_freq=(16, "step"))
+        policy_kwargs = {
+            "activation_fn": nn.ReLU,
+            "net_arch": [64, 64, 32],
+        }
+        model = DQN("MlpPolicy", env=env, verbose=1, policy_kwargs=policy_kwargs, gamma=args.gamma, exploration_initial_eps=0.2, exploration_fraction=0.5, learning_starts=50, learning_rate=0.0001, batch_size=32, train_freq=(8, "step"), target_update_interval=100, tau=1.0)
         print(f"\nTraining with DQN...\n")
     elif args.model_type == "PPO":
-        model = PPO("MlpPolicy", env=env, verbose=1, gamma=args.gamma, learning_rate=0.0005, batch_size=32, n_steps=32)
+        policy_kwargs = {
+            "activation_fn": nn.ReLU,
+            "net_arch": {
+                "pi": [64, 64, 32],
+                "vf": [64, 64],
+            }
+        }
+        model = PPO("MlpPolicy", env=env, verbose=1, policy_kwargs=policy_kwargs, gamma=args.gamma, learning_rate=0.0005, batch_size=32, n_steps=32)
         print(f"\nTraining with PPO...\n")
     else:
         raise RuntimeError(f"Invalid model type: {args.model_type}")
@@ -37,7 +53,7 @@ if __name__ == "__main__":
     model.learn(total_timesteps=args.total_timesteps, progress_bar=True)
 
     # Evaluate the trained model
-    print("\nEvaluating...\n")
+    print("\nEvaluating model...\n")
     mean_reward, std_reward = evaluate_policy(model, env, n_eval_episodes=5)
 
     # Save the trained model

@@ -32,8 +32,11 @@ if __name__ == "__main__":
     # Evaluate it for some steps
     vec_env = model.get_env()
     obs = vec_env.reset()
-    for _ in range(100):
+    num_episodes = 0
+    while num_episodes < 10:
         action, _ = model.predict(obs, deterministic=True)
         obs, rewards, dones, info = vec_env.step(action)
+        if dones[0]:
+            num_episodes += 1
 
     rclpy.shutdown()
