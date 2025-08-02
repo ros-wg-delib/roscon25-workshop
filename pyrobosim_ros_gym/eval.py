@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     # Evaluate it for some steps
     vec_env = model.get_env()
-    obs = vec_env.reset()
+    obs = env.reset()
     num_episodes = 0
     while num_episodes < args.num_episodes:
         action, _ = model.predict(obs, deterministic=True)
