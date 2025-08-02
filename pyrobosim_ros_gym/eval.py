@@ -14,7 +14,12 @@ from pyrobosim_ros_env import PyRoboSimRosEnv
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="The name of the model to evaluate.")
-    parser.add_argument("--num-episodes", default=10, type=int, help="The number of episodes to evaluate.")
+    parser.add_argument(
+        "--num-episodes",
+        default=10,
+        type=int,
+        help="The number of episodes to evaluate.",
+    )
     args = parser.parse_args()
 
     rclpy.init()

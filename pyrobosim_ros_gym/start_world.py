@@ -15,7 +15,9 @@ from pyrobosim_ros.ros_interface import WorldROSWrapper
 def create_ros_node() -> WorldROSWrapper:
     """Initializes ROS node"""
     rclpy.init()
-    world = WorldYamlLoader().from_file(os.path.join("pyrobosim_ros_gym", "test_world.yaml"))
+    world = WorldYamlLoader().from_file(
+        os.path.join("pyrobosim_ros_gym", "test_world.yaml")
+    )
     return WorldROSWrapper(world=world, state_pub_rate=0.1, dynamics_rate=0.01)
 
 
@@ -23,7 +25,9 @@ if __name__ == "__main__":
     node = create_ros_node()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--headless", action="store_true", help="Enables headless world loading.")
+    parser.add_argument(
+        "--headless", action="store_true", help="Enables headless world loading."
+    )
     args = parser.parse_args()
 
     if args.headless:

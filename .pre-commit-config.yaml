@@ -33,7 +33,7 @@ repos:
     rev: 25.1.0
     hooks:
       - id: black
-        exclude: ^pyrobosim
+        exclude: ^pyrobosim/
 
   # Finds spelling issues in code.
   - repo: https://github.com/codespell-project/codespell
