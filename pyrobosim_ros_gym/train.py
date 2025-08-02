@@ -34,7 +34,7 @@ if __name__ == "__main__":
             "activation_fn": nn.ReLU,
             "net_arch": [64, 64, 32],
         }
-        model = DQN("MlpPolicy", env=env, seed=args.seed, policy_kwargs=policy_kwargs, gamma=0.99, exploration_initial_eps=0.2, exploration_fraction=0.2, learning_starts=100, learning_rate=0.0005, batch_size=32, train_freq=(4, "step"), target_update_interval=100, tau=1.0)
+        model = DQN("MlpPolicy", env=env, seed=args.seed, policy_kwargs=policy_kwargs, gamma=0.99, exploration_initial_eps=0.2, exploration_fraction=0.2, learning_starts=500, learning_rate=0.0005, batch_size=32, train_freq=(4, "step"), target_update_interval=100, tau=1.0)
         print(f"\nTraining with DQN...\n")
     elif args.model_type == "PPO":
         policy_kwargs = {
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     # Train the model until it exceeds a specified reward threshold
     callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=5.0, verbose=1)
-    eval_callback = EvalCallback(env, callback_on_new_best=callback_on_best, n_eval_episodes = 5, eval_freq=500, verbose=1)
+    eval_callback = EvalCallback(env, callback_on_new_best=callback_on_best, n_eval_episodes=5, eval_freq=500, verbose=1)
     model.learn(total_timesteps=args.total_timesteps, progress_bar=True, callback=eval_callback)
 
     # Save the trained model

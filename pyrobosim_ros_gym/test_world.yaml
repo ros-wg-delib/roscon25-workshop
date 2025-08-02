@@ -5,7 +5,7 @@
 # WORLD PARAMETERS
 params:
   name: test_world
-  object_radius: 0.0375  # Radius around objects
+  object_radius: 0.01  # Radius around objects
   wall_height: 2.0  # Wall height for exporting to Gazebo
 
 
@@ -37,15 +37,6 @@ robots:
       max_angular_velocity: 6.0
       dt: 0.25
       validate_during_execution: false
-
-    # Grasp generation
-    grasping:
-      generator: parallel_grasp
-      max_width: 0.175
-      depth: 0.1
-      height: 0.04
-      width_clearance: 0.01
-      depth_clearance: 0.01
 
 # ROOMS: Polygonal regions that can contain object locations
 rooms:
@@ -158,58 +149,20 @@ locations:
     is_open: True
     is_locked: True
 
-  - name: trash
-    category: trash_can
-    parent: kitchen
-    pose:
-      position:
-        x: 0.9
-        y: 1.1
-      rotation_eul:
-        yaw: 90.0
-        angle_units: "degrees"
-    is_open: False
-    is_locked: False
-
 
 # OBJECTS: Can be picked, placed, and moved by robot
 objects:
   - category: banana
-    parent: table0
-    pose:
-      position:
-        x: 0.15
-        y: 0.0
-      rotation_eul:
-        yaw: -49.5
-        angle_units: "degrees"
-      relative_to: table0
 
   - category: apple
-    parent: my_desk
-    pose:
-      position:
-        x: 0.05
-        y: -0.15
-      relative_to: my_desk
 
-  - name: gala
-    category: apple
-    parent: table0
-
-  - name: fuji
-    category: apple
-    parent: trash
+  - category: apple
 
   - category: water
-    parent: counter0
 
   - category: banana
-    parent: counter0
 
   - category: water
-    parent: my_desk
 
   - name: soda
     category: coke
-    parent: my_desk

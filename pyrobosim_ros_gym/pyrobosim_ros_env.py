@@ -94,7 +94,6 @@ class PyRoboSimRosEnv(gym.Env):
         result_future = goal_future.result().get_result_async()
         rclpy.spin_until_future_complete(self.node, result_future)
 
-        t_elapsed = time.time() - t_start
         action_result = result_future.result().result
         self.step_number += 1
         truncated = (self.step_number >= self.max_steps_per_episode)
@@ -110,9 +109,9 @@ class PyRoboSimRosEnv(gym.Env):
         reward = 0.0
         # Discourage repeating and failing actions
         if (goal.action.type == "navigate") and (goal.action.target_location == robot_state.last_visited_location):
-            reward -= 0.5
+            reward -= 1.0
         if (action_result.execution_result.status != ExecutionResult.SUCCESS):
-            reward -= 0.5
+            reward -= 1.0
         # Robot gets positive reward based on holding a banana.
         for obj in self.world_state.objects:
             if obj.category == "banana":
@@ -132,6 +131,21 @@ class PyRoboSimRosEnv(gym.Env):
 
         future = self.reset_world_client.call_async(ResetWorld.Request())
         rclpy.spin_until_future_complete(self.node, future)
+
+        # Navigate to a random location that can be observed by our environment.
+        goal = ExecuteTaskAction.Goal()
+        goal.action = TaskAction(
+            type="navigate",
+            robot="robot",
+            target_location=np.random.choice(self.all_locations),
+        )
+        goal.realtime_factor = 1.0 if self.realtime else -1.0
+
+        goal_future = self.execute_action_client.send_goal_async(goal)
+        rclpy.spin_until_future_complete(self.node, goal_future)
+
+        result_future = goal_future.result().get_result_async()
+        rclpy.spin_until_future_complete(self.node, result_future)
 
         observation = self._get_obs()
         info = {}
