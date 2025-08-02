@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser.add_argument("--total-timesteps", default=50000, type=int, help="The number of total timesteps to train for.")
     parser.add_argument("--seed", default=42, type=int, help="The RNG seed to use.")
     parser.add_argument("--realtime", action="store_true", help="If true, slows down to real time.")
+    parser.add_argument("--log", action="store_true", help="If true, logs data to Tensorboard.")
     args = parser.parse_args()
 
     rclpy.init()
@@ -27,12 +28,13 @@ if __name__ == "__main__":
     env = PyRoboSimRosEnv(node, realtime=args.realtime, max_steps_per_episode=50)
 
     # Train a model
+    log_path = "train_logs" if args.log else None
     if args.model_type == "DQN":
         policy_kwargs = {
             "activation_fn": nn.ReLU,
             "net_arch": [64, 64],
         }
-        model = DQN("MlpPolicy", env=env, seed=args.seed, policy_kwargs=policy_kwargs, gamma=0.9, exploration_initial_eps=0.1, exploration_fraction=0.1, learning_starts=500, learning_rate=0.0005, batch_size=32, train_freq=(4, "step"), target_update_interval=100, tau=1.0)
+        model = DQN("MlpPolicy", env=env, seed=args.seed, policy_kwargs=policy_kwargs, gamma=0.99, exploration_initial_eps=0.1, exploration_fraction=0.1, learning_starts=500, learning_rate=0.0005, batch_size=32, train_freq=(4, "step"), target_update_interval=100, tau=1.0, tensorboard_log=log_path)
         print(f"\nTraining with DQN...\n")
     elif args.model_type == "PPO":
         policy_kwargs = {
@@ -42,7 +44,7 @@ if __name__ == "__main__":
                 "vf": [64, 32],
             }
         }
-        model = PPO("MlpPolicy", env=env, seed=args.seed, policy_kwargs=policy_kwargs, gamma=0.9, learning_rate=0.0005, batch_size=32, n_steps=256)
+        model = PPO("MlpPolicy", env=env, seed=args.seed, policy_kwargs=policy_kwargs, gamma=0.99, learning_rate=0.0005, batch_size=32, n_steps=256, tensorboard_log=log_path)
         print(f"\nTraining with PPO...\n")
     else:
         raise RuntimeError(f"Invalid model type: {args.model_type}")

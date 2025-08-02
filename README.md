@@ -43,7 +43,11 @@ pixi run start_world --headless
 ```
 
 ```bash
-pixi run train
+pixi run train --model-type PPO --log
+```
+
+```bash
+pixi run tensorboard
 ```
 
 ```bash

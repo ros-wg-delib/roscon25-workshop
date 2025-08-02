@@ -113,6 +113,9 @@ class PyRoboSimRosEnv(gym.Env):
             reward -= 1.0
         if (action_result.execution_result.status != ExecutionResult.SUCCESS):
             reward -= 0.5
+        # Discourage picking/placing when not at a location (for initial states)
+        if (goal.action.type != "navigate") and (robot_state.last_visited_location not in self.all_locations):
+            reward -= 1.0
         # Robot gets positive reward based on holding a banana,
         # and negative reward for being in locations without bananas.
         at_banana_location = False

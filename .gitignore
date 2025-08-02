@@ -8,5 +8,6 @@ build/
 install/
 log/
 
-# Model checkpoints
+# Model checkpoints and logging
+train_logs/
 *.pt
