@@ -1,0 +1,63 @@
+repos:
+
+  # Runs pre-commit hooks and other file format checks.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: check-docstring-first
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-toml
+      - id: check-vcs-permalinks
+      - id: check-yaml
+      - id: debug-statements
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: forbid-new-submodules
+      - id: mixed-line-ending
+      - id: name-tests-test
+      - id: requirements-txt-fixer
+      - id: sort-simple-yaml
+      - id: trailing-whitespace
+
+  # Autoformats Python code.
+  - repo: https://github.com/psf/black.git
+    rev: 25.1.0
+    hooks:
+      - id: black
+        exclude: ^pyrobosim
+
+  # Finds spelling issues in code.
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        files: ^.*\.(py|md|yaml|yml)$
+
+  # Finds issues in YAML files.
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.37.1
+    hooks:
+      - id: yamllint
+        args:
+          [
+            "--no-warnings",
+            "--config-data",
+            "{extends: default, rules: {line-length: disable, braces: {max-spaces-inside: 1}, indentation: disable}}",
+          ]
+        types: [text]
+        files: \.(yml|yaml)$
+
+  # Checks links in markdown files.
+  - repo: https://github.com/tcort/markdown-link-check
+    rev: v3.13.7
+    hooks:
+      - id: markdown-link-check
