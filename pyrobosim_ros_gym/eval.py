@@ -37,11 +37,16 @@ if __name__ == "__main__":
 
     # Evaluate it for some steps
     vec_env = model.get_env()
+    assert vec_env is not None, "Environment must be defined."
     obs = vec_env.reset()
     num_episodes = 0
     while num_episodes < args.num_episodes:
+        print("."*10)
+        print(f"{obs=}")
         action, _ = model.predict(obs, deterministic=True)
+        print(f"{action=}")
         obs, rewards, dones, info = vec_env.step(action)
+        print(f"{rewards=}")
         if dones[0]:
             num_episodes += 1
 

@@ -70,6 +70,7 @@ class PyRoboSimRosEnv(gym.Env):
         self.num_actions = len(self.integer_to_action)
 
         self.action_space = spaces.Discrete(self.num_actions)
+        print(f"{self.action_space=}")
 
         # Observation space is defined by:
         #  Previous action
@@ -88,6 +89,7 @@ class PyRoboSimRosEnv(gym.Env):
             low=-np.ones(self.obs_size, dtype=np.float32),
             high=np.ones(self.obs_size, dtype=np.float32),
         )
+        print(f"{self.observation_space=}")
 
     def step(self, action):
         info = {}
