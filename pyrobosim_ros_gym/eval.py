@@ -6,7 +6,7 @@ import argparse
 
 import rclpy
 from rclpy.node import Node
-from stable_baselines3 import DQN, PPO
+from stable_baselines3 import DQN, PPO, SAC, A2C
 
 from pyrobosim_ros_env import PyRoboSimRosEnv
 
@@ -32,6 +32,10 @@ if __name__ == "__main__":
         model = DQN.load(args.model, env=env)
     elif model_type == "PPO":
         model = PPO.load(args.model, env=env)
+    if model_type == "SAC":
+        model = SAC.load(args.model, env=env)
+    elif model_type == "A2C":
+        model = A2C.load(args.model, env=env)
     else:
         raise RuntimeError(f"Invalid model type: {model_type}")
 
@@ -40,8 +44,9 @@ if __name__ == "__main__":
     assert vec_env is not None, "Environment must be defined."
     obs = vec_env.reset()
     num_episodes = 0
+    successful_episodes = 0
     while num_episodes < args.num_episodes:
-        print("."*10)
+        print("." * 10)
         print(f"{obs=}")
         action, _ = model.predict(obs, deterministic=True)
         print(f"{action=}")
@@ -49,5 +54,11 @@ if __name__ == "__main__":
         print(f"{rewards=}")
         if dones[0]:
             num_episodes += 1
+            if vec_env.env_method("has_banana"):
+                print("🍌")
+                successful_episodes += 1
+    print(
+        f"{successful_episodes} of {num_episodes} ({100.*successful_episodes/num_episodes}%) episodes successful."
+    )
 
     rclpy.shutdown()
