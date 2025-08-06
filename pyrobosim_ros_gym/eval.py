@@ -32,7 +32,7 @@ if __name__ == "__main__":
         model = DQN.load(args.model, env=env)
     elif model_type == "PPO":
         model = PPO.load(args.model, env=env)
-    if model_type == "SAC":
+    elif model_type == "SAC":
         model = SAC.load(args.model, env=env)
     elif model_type == "A2C":
         model = A2C.load(args.model, env=env)
@@ -46,15 +46,16 @@ if __name__ == "__main__":
     num_episodes = 0
     successful_episodes = 0
     while num_episodes < args.num_episodes:
-        print("." * 10)
-        print(f"{obs=}")
+        # print("." * 10)
+        # print(f"{obs=}")
         action, _ = model.predict(obs, deterministic=True)
-        print(f"{action=}")
+        # print(f"{action=}")
         obs, rewards, dones, info = vec_env.step(action)
-        print(f"{rewards=}")
+        banana = vec_env.env_method("has_banana")[0]
+        # print(f"{rewards=}")
         if dones[0]:
             num_episodes += 1
-            if vec_env.env_method("has_banana"):
+            if banana:
                 print("🍌")
                 successful_episodes += 1
     print(

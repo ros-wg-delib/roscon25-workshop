@@ -195,7 +195,7 @@ class PyRoboSimRosEnv(gym.Env):
                     at_banana_location = True
                 elif obj.name == robot_state.manipulated_object:
                     print(
-                        f"Robot is at {robot_state.last_visited_location} and holding {obj.name}. "
+                        f"🍌 At {robot_state.last_visited_location} and holding {obj.name}. "
                         f"Episode succeeded in {self.step_number} steps!"
                     )
                     reward += 10.0
@@ -210,6 +210,10 @@ class PyRoboSimRosEnv(gym.Env):
     def has_banana(self):
         robot_state = self.world_state.robots[0]
         for obj in self.world_state.objects:
-            if obj.category == "banana" and obj.name == robot_state.manipulated_object:
+            if (
+                obj.category == "banana"
+                and obj.name == robot_state.manipulated_object
+                and obj.parent == robot_state.last_visited_location
+            ):
                 return True
         return False
