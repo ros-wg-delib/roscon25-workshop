@@ -1,6 +1,13 @@
+# Various types of metadata
 .pixi
 .ruff_cache
+**/__pycache__
 
+# Colcon build files
 build/
 install/
 log/
+
+# Model checkpoints and logging
+train_logs/
+*.pt
