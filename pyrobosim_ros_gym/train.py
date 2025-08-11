@@ -7,7 +7,7 @@ from datetime import datetime
 
 import rclpy
 from rclpy.node import Node
-from stable_baselines3 import DQN, PPO
+from stable_baselines3 import DQN, PPO, SAC, A2C
 from stable_baselines3.common.callbacks import (
     EvalCallback,
     StopTrainingOnRewardThreshold,
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model-type",
         default="DQN",
-        choices=["DQN", "PPO"],
+        choices=["DQN", "PPO", "SAC", "A2C"],
         help="The model type to train.",
     )
     parser.add_argument(
@@ -51,7 +51,7 @@ if __name__ == "__main__":
             "activation_fn": nn.ReLU,
             "net_arch": [64, 64],
         }
-        model = DQN(
+        model = DQN(  # type: BaseAlgorithm
             "MlpPolicy",
             env=env,
             seed=args.seed,
@@ -68,7 +68,6 @@ if __name__ == "__main__":
             target_update_interval=500,
             tensorboard_log=log_path,
         )
-        print(f"\nTraining with DQN...\n")
     elif args.model_type == "PPO":
         policy_kwargs = {
             "activation_fn": nn.ReLU,
@@ -88,9 +87,30 @@ if __name__ == "__main__":
             n_steps=64,
             tensorboard_log=log_path,
         )
-        print(f"\nTraining with PPO...\n")
+    elif args.model_type == "SAC":
+        model = SAC(
+            "MlpPolicy",
+            env=env,
+            seed=args.seed,
+            # policy_kwargs=policy_kwargs,    .. Let's try default values
+            learning_rate=0.0003,
+            gamma=0.99,
+            batch_size=32,
+            tensorboard_log=log_path,
+        )
+    elif args.model_type == "A2C":
+        model = A2C(
+            "MlpPolicy",
+            env=env,
+            seed=args.seed,
+            # policy_kwargs=policy_kwargs,    .. Let's try default values
+            learning_rate=0.0003,
+            gamma=0.99,
+            tensorboard_log=log_path,
+        )
     else:
         raise RuntimeError(f"Invalid model type: {args.model_type}")
+    print(f"\nTraining with {args.model_type}...\n")
 
     # Train the model until it exceeds a specified reward threshold
     callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=9.5, verbose=1)

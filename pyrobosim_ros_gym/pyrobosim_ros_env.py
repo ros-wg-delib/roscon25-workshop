@@ -33,6 +33,11 @@ class PyRoboSimRosEnv(gym.Env):
         )
         self.reset_world_client = node.create_client(ResetWorld, "reset_world")
 
+        self.request_info_client.wait_for_service()
+        self.request_state_client.wait_for_service()
+        self.execute_action_client.wait_for_server()
+        self.reset_world_client.wait_for_service()
+
         future = self.request_info_client.call_async(RequestWorldInfo.Request())
         rclpy.spin_until_future_complete(self.node, future)
         self.world_info = future.result().info
@@ -70,6 +75,7 @@ class PyRoboSimRosEnv(gym.Env):
         self.num_actions = len(self.integer_to_action)
 
         self.action_space = spaces.Discrete(self.num_actions)
+        print(f"{self.action_space=}")
 
         # Observation space is defined by:
         #  Previous action
@@ -88,6 +94,7 @@ class PyRoboSimRosEnv(gym.Env):
             low=-np.ones(self.obs_size, dtype=np.float32),
             high=np.ones(self.obs_size, dtype=np.float32),
         )
+        print(f"{self.observation_space=}")
 
     def step(self, action):
         info = {}
@@ -114,41 +121,9 @@ class PyRoboSimRosEnv(gym.Env):
             )
 
         observation = self._get_obs()
-        robot_state = self.world_state.robots[0]
-
-        # Calculate reward
-        reward = 0.0
-        terminated = False
-        # Discourage repeating the same navigation action or failing to pick/place.
-        if (goal.action.type == "navigate") and (
-            goal.action.target_location == previous_location
-        ):
-            reward -= 1.0
-        if action_result.execution_result.status != ExecutionResult.SUCCESS:
-            reward -= 0.5
-        # Discourage picking/placing when not at a location (for initial states)
-        if (goal.action.type != "navigate") and (
-            robot_state.last_visited_location not in self.all_locations
-        ):
-            reward -= 1.0
-        # Robot gets positive reward based on holding a banana,
-        # and negative reward for being in locations without bananas.
-        at_banana_location = False
-        for obj in self.world_state.objects:
-            if obj.category == "banana":
-                if obj.parent == robot_state.last_visited_location:
-                    at_banana_location = True
-                elif obj.name == robot_state.manipulated_object:
-                    print(
-                        f"Robot is at {robot_state.last_visited_location} and holding {obj.name}. "
-                        f"Episode succeeded in {self.step_number} steps!"
-                    )
-                    reward += 10.0
-                    terminated = True
-                    at_banana_location = True
-                    break
-        if not at_banana_location:
-            reward -= 0.5
+        reward, terminated = self._calculate_reward(
+            goal, action_result, previous_location
+        )
 
         return observation, reward, terminated, truncated, info
 
@@ -198,3 +173,48 @@ class PyRoboSimRosEnv(gym.Env):
 
         self.world_state = world_state
         return obs
+
+    def _calculate_reward(self, goal, action_result, previous_location):
+        # Calculate reward
+        reward = 0.0
+        terminated = False
+        robot_state = self.world_state.robots[0]
+        # Discourage repeating the same navigation action or failing to pick/place.
+        if (goal.action.type == "navigate") and (
+            goal.action.target_location == previous_location
+        ):
+            reward -= 1.0
+        if action_result.execution_result.status != ExecutionResult.SUCCESS:
+            reward -= 0.5
+        # Discourage picking/placing when not at a location (for initial states)
+        if (goal.action.type != "navigate") and (
+            robot_state.last_visited_location not in self.all_locations
+        ):
+            reward -= 1.0
+        # Robot gets positive reward based on holding a banana,
+        # and negative reward for being in locations without bananas.
+        at_banana_location = False
+        for obj in self.world_state.objects:
+            if obj.category == "banana":
+                if obj.parent == robot_state.last_visited_location:
+                    at_banana_location = True
+                elif obj.name == robot_state.manipulated_object:
+                    print(
+                        f"🍌 At {robot_state.last_visited_location} and holding {obj.name}. "
+                        f"Episode succeeded in {self.step_number} steps!"
+                    )
+                    reward += 10.0
+                    terminated = True
+                    at_banana_location = True
+                    assert self.has_banana(), "self.has_banana() should return True."
+                    break
+        if not at_banana_location:
+            reward -= 0.5
+        return reward, terminated
+
+    def has_banana(self):
+        robot_state = self.world_state.robots[0]
+        for obj in self.world_state.objects:
+            if obj.category == "banana" and obj.name == robot_state.manipulated_object:
+                return True
+        return False
