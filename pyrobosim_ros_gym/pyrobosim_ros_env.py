@@ -33,6 +33,11 @@ class PyRoboSimRosEnv(gym.Env):
         )
         self.reset_world_client = node.create_client(ResetWorld, "reset_world")
 
+        self.request_info_client.wait_for_service()
+        self.request_state_client.wait_for_service()
+        self.execute_action_client.wait_for_server()
+        self.reset_world_client.wait_for_service()
+
         future = self.request_info_client.call_async(RequestWorldInfo.Request())
         rclpy.spin_until_future_complete(self.node, future)
         self.world_info = future.result().info
@@ -201,7 +206,7 @@ class PyRoboSimRosEnv(gym.Env):
                     reward += 10.0
                     terminated = True
                     at_banana_location = True
-                    assert self.has_banana(), "Outside goal test should also be fine."
+                    assert self.has_banana(), "self.has_banana() should return True."
                     break
         if not at_banana_location:
             reward -= 0.5
@@ -210,10 +215,6 @@ class PyRoboSimRosEnv(gym.Env):
     def has_banana(self):
         robot_state = self.world_state.robots[0]
         for obj in self.world_state.objects:
-            if (
-                obj.category == "banana"
-                and obj.name == robot_state.manipulated_object
-                and obj.parent == robot_state.last_visited_location
-            ):
+            if obj.category == "banana" and obj.name == robot_state.manipulated_object:
                 return True
         return False
