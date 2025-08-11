@@ -51,5 +51,5 @@ pixi run tensorboard
 ```
 
 ```bash
-pixi run eval
+pixi run eval --model <path_to_model.pt>
 ```
