@@ -111,3 +111,62 @@ def banana_on_table_reward(env, goal, action_result):
             reward -= 0.25
 
     return reward, terminated, info
+
+
+def banana_on_table_avoid_soda_reward(env, goal, action_result):
+    """
+    Checks whether the robot has placed a banana on the table without touching the soda.
+
+    :param: The environment.
+    :goal: The ROS action goal sent to the robot.
+    :action_result: The result of the above goal.
+    :
+    :return: A tuple of (reward, terminated, info)
+    """
+    # Start with the same reward as the no-soda case.
+    reward, terminated, info = banana_on_table_reward(env, goal, action_result)
+
+    # Robot gets additional negative reward being near a soda,
+    # and fails if it tries to pick or place at a location with a soda.
+    robot_state = env.world_state.robots[0]
+    for obj in env.world_state.objects:
+        if obj.category == "coke" and obj.parent == robot_state.last_visited_location:
+            if goal.action.type == "navigate":
+                reward -= 2.5
+            else:
+                print(
+                    "🔥 Tried to pick and place near a soda. "
+                    f"Episode failed in {env.step_number} steps!"
+                )
+                reward -= 25.0
+                terminated = True
+                info["success"] = False
+
+    return reward, terminated, info
+
+
+def avoid_soda_reset_validation(env):
+    """
+    Checks whether an environment has been properly reset to avoid soda.
+
+    Specifically, we are checking that:
+      - There is at least one banana not next to a soda
+      - The robot is not at a starting location where there is a soda
+
+    :param: The environment.
+    :return: True if valid, else False.
+    """
+    soda_location = None
+    for obj in env.world_state.objects:
+        if obj.category == "coke":
+            soda_location = obj.parent
+
+    valid_banana_locations = False
+    for obj in env.world_state.objects:
+        if obj.category == "banana" and obj.parent != soda_location:
+            valid_banana_locations = True
+
+    robot_location = env.world_state.robots[0].last_visited_location
+    valid_robot_location = robot_location != soda_location
+
+    return valid_banana_locations and valid_robot_location

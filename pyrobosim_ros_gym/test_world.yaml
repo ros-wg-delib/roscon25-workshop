@@ -167,3 +167,4 @@ objects:
 
   - name: soda
     category: coke
+    parent: ["desk", "counter"]

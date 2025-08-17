@@ -15,12 +15,35 @@ from pyrobosim_msgs.srv import RequestWorldInfo, RequestWorldState, ResetWorld
 class PyRoboSimRosEnv(gym.Env):
     """Gym environment wrapping around the PyRoboSim ROS Interface."""
 
-    def __init__(self, node, *, reward_fn, max_steps_per_episode=50, realtime=True):
+    def __init__(
+        self,
+        node,
+        *,
+        reward_fn,
+        reset_validation_fn=None,
+        max_steps_per_episode=50,
+        realtime=True,
+    ):
+        """
+        Instantiates a PyRoboSim ROS environment.
+
+        :param node: The ROS node to use for creating clients.
+        :param reward_fn: Function that calculates the reward and termination criteria.
+        :param reset_validation_fn: Function that calculates whether a reset is valid.
+            If None (default), all resets are valid.
+        :param max_steps_per_episode: Maximum number of steps before truncating an episode.
+        :param realtime: If True, commands PyRoboSim to run actions in real time.
+            If False, actions run as quickly as possible for faster training.
+        """
         super().__init__()
         self.node = node
         self.realtime = realtime
         self.max_steps_per_episode = max_steps_per_episode
         self.reward_fn = lambda goal, result: reward_fn(self, goal, result)
+        if reset_validation_fn is None:
+            self.reset_validation_fn = lambda: True
+        else:
+            self.reset_validation_fn = lambda: reset_validation_fn(self)
         self.step_number = 0
         self.previous_location = None
         self.previous_action_type = None
@@ -100,6 +123,7 @@ class PyRoboSimRosEnv(gym.Env):
         print(f"{self.observation_space=}")
 
     def step(self, action):
+        """Steps the environment with a specific action."""
         self.previous_location = self.world_state.robots[0].last_visited_location
 
         goal = ExecuteTaskAction.Goal()
@@ -128,19 +152,26 @@ class PyRoboSimRosEnv(gym.Env):
         return observation, reward, terminated, truncated, info
 
     def reset(self, seed=None, options=None):
+        """Resets the environment with a specified seed and options."""
         # IMPORTANT: Must call this first to seed the random number generator
         super().reset(seed=seed)
-        print(f"Resetting environment")
         self.step_number = 0
-
-        future = self.reset_world_client.call_async(
-            ResetWorld.Request(seed=(seed or -1))
-        )
-        rclpy.spin_until_future_complete(self.node, future)
-
-        observation = self._get_obs()
         info = {}
 
+        valid_reset = False
+        num_reset_attempts = 0
+        while not valid_reset:
+            future = self.reset_world_client.call_async(
+                ResetWorld.Request(seed=(seed or -1))
+            )
+            rclpy.spin_until_future_complete(self.node, future)
+
+            observation = self._get_obs()
+
+            valid_reset = self.reset_validation_fn()
+            num_reset_attempts += 1
+
+        print(f"Reset environment in {num_reset_attempts} attempt(s).")
         return observation, info
 
     def _get_obs(self):

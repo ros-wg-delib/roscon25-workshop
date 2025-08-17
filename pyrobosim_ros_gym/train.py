@@ -15,7 +15,12 @@ from stable_baselines3.common.callbacks import (
 from torch import nn
 
 from pyrobosim_ros_env import PyRoboSimRosEnv
-from envs.banana import banana_picked_reward, banana_on_table_reward
+from envs.banana import (
+    banana_picked_reward,
+    banana_on_table_reward,
+    banana_on_table_avoid_soda_reward,
+    avoid_soda_reset_validation,
+)
 
 
 if __name__ == "__main__":
@@ -23,7 +28,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--env",
         default="PickBanana",
-        choices=["PickBanana", "PlaceBanana"],
+        choices=["PickBanana", "PlaceBanana", "PlaceBananaNoSoda"],
         help="The environment to use.",
     )
     parser.add_argument(
@@ -33,10 +38,10 @@ if __name__ == "__main__":
         help="The model type to train.",
     )
     parser.add_argument(
-        "--total-timesteps",
+        "--max-timesteps",
         default=25000,
         type=int,
-        help="The number of total timesteps to train for.",
+        help="The maximum number of timesteps to train for.",
     )
     parser.add_argument("--seed", default=42, type=int, help="The RNG seed to use.")
     parser.add_argument(
@@ -48,20 +53,27 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Create the environment
-    rclpy.init()
-    node = Node("pyrobosim_ros_env")
     if args.env == "PickBanana":
         reward_fn = banana_picked_reward
+        reset_validation_fn = None
         eval_freq = 1000
     elif args.env == "PlaceBanana":
         reward_fn = banana_on_table_reward
+        reset_validation_fn = None
         eval_freq = 2000
-    else:  # TODO: Add another "fire avoidance" type env.
+    elif args.env == "PlaceBananaNoSoda":
+        reward_fn = banana_on_table_avoid_soda_reward
+        reset_validation_fn = avoid_soda_reset_validation
+        eval_freq = 2000
+    else:
         raise ValueError(f"Invalid environment name: {args.env}")
 
+    rclpy.init()
+    node = Node("pyrobosim_ros_env")
     env = PyRoboSimRosEnv(
         node,
         reward_fn=reward_fn,
+        reset_validation_fn=reset_validation_fn,
         realtime=args.realtime,
         max_steps_per_episode=25,
     )
@@ -144,7 +156,7 @@ if __name__ == "__main__":
         verbose=1,
     )
     model.learn(
-        total_timesteps=args.total_timesteps, progress_bar=True, callback=eval_callback
+        total_timesteps=args.max_timesteps, progress_bar=True, callback=eval_callback
     )
 
     # Save the trained model
