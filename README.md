@@ -43,7 +43,7 @@ pixi run start_world --headless
 ```
 
 ```bash
-pixi run train --model-type PPO --log
+pixi run train --env PickBanana --model-type PPO --log
 ```
 
 ```bash

@@ -15,10 +15,17 @@ from stable_baselines3.common.callbacks import (
 from torch import nn
 
 from pyrobosim_ros_env import PyRoboSimRosEnv
+from envs.banana import banana_picked_reward, banana_on_table_reward
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--env",
+        default="PickBanana",
+        choices=["PickBanana", "PlaceBanana"],
+        help="The environment to use.",
+    )
     parser.add_argument(
         "--model-type",
         default="DQN",
@@ -27,7 +34,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--total-timesteps",
-        default=10000,
+        default=25000,
         type=int,
         help="The number of total timesteps to train for.",
     )
@@ -40,9 +47,27 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    # Create the environment
     rclpy.init()
     node = Node("pyrobosim_ros_env")
-    env = PyRoboSimRosEnv(node, realtime=args.realtime, max_steps_per_episode=25)
+    if args.env == "PickBanana":
+        env = PyRoboSimRosEnv(
+            node,
+            reward_fn=banana_picked_reward,
+            realtime=args.realtime,
+            max_steps_per_episode=25,
+        )
+        eval_freq = 1000
+    elif args.env == "PlaceBanana":
+        env = PyRoboSimRosEnv(
+            node,
+            reward_fn=banana_on_table_reward,
+            realtime=args.realtime,
+            max_steps_per_episode=50,
+        )
+        eval_freq = 2000
+    else:  # TODO: Add another "fire avoidance" type env.
+        raise ValueError(f"Invalid environment name: {args.env}")
 
     # Train a model
     log_path = "train_logs" if args.log else None
@@ -118,7 +143,7 @@ if __name__ == "__main__":
         env,
         callback_on_new_best=callback_on_best,
         n_eval_episodes=10,
-        eval_freq=500,
+        eval_freq=eval_freq,
         verbose=1,
     )
     model.learn(
@@ -126,9 +151,8 @@ if __name__ == "__main__":
     )
 
     # Save the trained model
-    model_name = f"{args.model_type}_" + datetime.now().strftime(
-        "model_%Y_%m_%d_%H_%M_%S" + ".pt"
-    )
+    date_str = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    model_name = f"{args.env}_{args.model_type}_{date_str}.pt"
     model.save(model_name)
     print(f"\nSaved model to {model_name}\n")
 

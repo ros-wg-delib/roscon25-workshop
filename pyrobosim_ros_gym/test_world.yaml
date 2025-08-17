@@ -35,6 +35,7 @@ robots:
       max_angular_velocity: 6.0
       dt: 0.2
       validate_during_execution: false
+    location: ["desk", "counter", "table"]
 
 # ROOMS: Polygonal regions that can contain object locations
 rooms:
@@ -150,17 +151,19 @@ locations:
 
 # OBJECTS: Can be picked, placed, and moved by robot
 objects:
-  - category: banana
-
   - category: apple
 
   - category: apple
 
   - category: water
 
-  - category: banana
-
   - category: water
+
+  - category: banana
+    parent: ["desk", "counter"]
+
+  - category: banana
+    parent: ["desk", "counter"]
 
   - name: soda
     category: coke

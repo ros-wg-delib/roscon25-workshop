@@ -9,6 +9,7 @@ from rclpy.node import Node
 from stable_baselines3 import DQN, PPO, SAC, A2C
 
 from pyrobosim_ros_env import PyRoboSimRosEnv
+from envs.banana import banana_picked_reward, banana_on_table_reward
 
 
 if __name__ == "__main__":
@@ -22,12 +23,25 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    # Create the environment
     rclpy.init()
     node = Node("pyrobosim_ros_env")
-    env = PyRoboSimRosEnv(node, max_steps_per_episode=10)
+    env_type = args.model.split("_")[0]
+    if env_type == "PickBanana":
+        reward_fn = banana_picked_reward
+    elif env_type == "PlaceBanana":
+        reward_fn = banana_on_table_reward
+    else:  # TODO: Add another "fire avoidance" type env
+        raise ValueError(f"Invalid environment name: {args.env}")
+
+    env = PyRoboSimRosEnv(
+        node,
+        reward_fn=reward_fn,
+        max_steps_per_episode=10,
+    )
 
     # Load a model
-    model_type = args.model.split("_")[0]
+    model_type = args.model.split("_")[1]
     if model_type == "DQN":
         model = DQN.load(args.model, env=env)
     elif model_type == "PPO":
@@ -50,13 +64,11 @@ if __name__ == "__main__":
         # print(f"{obs=}")
         action, _ = model.predict(obs, deterministic=True)
         # print(f"{action=}")
-        obs, rewards, dones, info = vec_env.step(action)
-        banana = vec_env.env_method("has_banana")[0]
+        obs, rewards, dones, infos = vec_env.step(action)
         # print(f"{rewards=}")
         if dones[0]:
             num_episodes += 1
-            if banana:
-                print("🍌")
+            if infos[0]["success"]:
                 successful_episodes += 1
     print(
         f"{successful_episodes} of {num_episodes} ({100.*successful_episodes/num_episodes}%) episodes successful."
