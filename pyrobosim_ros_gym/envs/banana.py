@@ -46,7 +46,9 @@ def banana_picked_reward(env, goal, action_result):
                 at_banana_location = True
                 info["success"] = True
                 break
-    if not at_banana_location:
+
+    # Reward shaping: Penalty if the robot is not at a location containing a banana.
+    if not terminated and not at_banana_location:
         reward -= 0.5
     return reward, terminated, info
 
@@ -78,9 +80,12 @@ def banana_on_table_reward(env, goal, action_result):
     if goal.action.type == env.previous_action_type:
         reward -= 0.5
     # Robot gets positive reward based on a banana being at the table.
+    at_banana_location = False
     holding_banana = False
     for obj in env.world_state.objects:
         if obj.category == "banana":
+            if obj.parent == robot_state.last_visited_location:
+                at_banana_location = True
             if obj.parent == "table0_tabletop":
                 print(
                     f"🍌 Banana is on the table. "
@@ -94,9 +99,15 @@ def banana_on_table_reward(env, goal, action_result):
         if obj.category == "banana" and obj.name == robot_state.manipulated_object:
             holding_banana = True
 
-    # Slight reward penalty if the robot is not holding a banana.
-    # This encourages the robot to try pick up bananas.
-    if not terminated and not holding_banana:
-        reward -= 0.1
+    # Reward shaping: Adjust the reward related to how close the robot is to completing the task.
+    if not terminated:
+        if holding_banana and env.previous_location != "table0_tabletop":
+            reward += 0.25
+        elif holding_banana:
+            reward += 0.1
+        elif at_banana_location:
+            reward -= 0.1
+        else:
+            reward -= 0.25
 
     return reward, terminated, info

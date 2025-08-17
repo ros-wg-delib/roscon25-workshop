@@ -51,23 +51,20 @@ if __name__ == "__main__":
     rclpy.init()
     node = Node("pyrobosim_ros_env")
     if args.env == "PickBanana":
-        env = PyRoboSimRosEnv(
-            node,
-            reward_fn=banana_picked_reward,
-            realtime=args.realtime,
-            max_steps_per_episode=25,
-        )
+        reward_fn = banana_picked_reward
         eval_freq = 1000
     elif args.env == "PlaceBanana":
-        env = PyRoboSimRosEnv(
-            node,
-            reward_fn=banana_on_table_reward,
-            realtime=args.realtime,
-            max_steps_per_episode=50,
-        )
+        reward_fn = banana_on_table_reward
         eval_freq = 2000
     else:  # TODO: Add another "fire avoidance" type env.
         raise ValueError(f"Invalid environment name: {args.env}")
+
+    env = PyRoboSimRosEnv(
+        node,
+        reward_fn=reward_fn,
+        realtime=args.realtime,
+        max_steps_per_episode=25,
+    )
 
     # Train a model
     log_path = "train_logs" if args.log else None
