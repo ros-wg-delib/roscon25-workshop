@@ -92,7 +92,7 @@ if __name__ == "__main__":
             policy_kwargs=policy_kwargs,
             gamma=0.99,
             exploration_initial_eps=0.75,
-            exploration_final_eps=0.1,
+            exploration_final_eps=0.05,
             exploration_fraction=0.25,
             learning_starts=100,
             learning_rate=0.0001,
@@ -138,7 +138,7 @@ if __name__ == "__main__":
             env=env,
             seed=args.seed,
             # policy_kwargs=policy_kwargs,    .. Let's try default values
-            learning_rate=0.0003,
+            learning_rate=0.0007,
             gamma=0.99,
             tensorboard_log=log_path,
         )
@@ -155,13 +155,18 @@ if __name__ == "__main__":
         eval_freq=eval_freq,
         verbose=1,
     )
+
+    date_str = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    log_name = f"{args.env}_{args.model_type}_{date_str}"
     model.learn(
-        total_timesteps=args.max_timesteps, progress_bar=True, callback=eval_callback
+        total_timesteps=args.max_timesteps,
+        progress_bar=True,
+        tb_log_name=log_name,
+        callback=eval_callback,
     )
 
     # Save the trained model
-    date_str = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-    model_name = f"{args.env}_{args.model_type}_{date_str}.pt"
+    model_name = f"{log_name}.pt"
     model.save(model_name)
     print(f"\nSaved model to {model_name}\n")
 
