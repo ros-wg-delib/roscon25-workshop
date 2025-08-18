@@ -23,6 +23,7 @@ class PyRoboSimRosEnv(gym.Env):
         reset_validation_fn=None,
         max_steps_per_episode=50,
         realtime=True,
+        discrete_actions=True,
     ):
         """
         Instantiates a PyRoboSim ROS environment.
@@ -34,16 +35,19 @@ class PyRoboSimRosEnv(gym.Env):
         :param max_steps_per_episode: Maximum number of steps before truncating an episode.
         :param realtime: If True, commands PyRoboSim to run actions in real time.
             If False, actions run as quickly as possible for faster training.
+        :param discrete_actions: If True, uses discrete actions, else uses continuous.
         """
         super().__init__()
         self.node = node
         self.realtime = realtime
         self.max_steps_per_episode = max_steps_per_episode
+        self.discrete_actions = discrete_actions
         self.reward_fn = lambda goal, result: reward_fn(self, goal, result)
         if reset_validation_fn is None:
             self.reset_validation_fn = lambda: True
         else:
             self.reset_validation_fn = lambda: reset_validation_fn(self)
+
         self.step_number = 0
         self.previous_location = None
         self.previous_action_type = None
@@ -100,7 +104,13 @@ class PyRoboSimRosEnv(gym.Env):
         self.integer_to_action[idx] = TaskAction(type="place")
         self.num_actions = len(self.integer_to_action)
 
-        self.action_space = spaces.Discrete(self.num_actions)
+        if self.discrete_actions:
+            self.action_space = spaces.Discrete(self.num_actions)
+        else:
+            self.action_space = spaces.Box(
+                low=np.zeros(self.num_actions, dtype=np.float32),
+                high=np.ones(self.num_actions, dtype=np.float32),
+            )
         print(f"{self.action_space=}")
 
         # Observation space is defined by:
@@ -127,7 +137,10 @@ class PyRoboSimRosEnv(gym.Env):
         self.previous_location = self.world_state.robots[0].last_visited_location
 
         goal = ExecuteTaskAction.Goal()
-        goal.action = self.integer_to_action[action]
+        if self.discrete_actions:
+            goal.action = self.integer_to_action[action]
+        else:
+            goal.action = self.integer_to_action[np.argmax(action)]
         goal.action.robot = "robot"
         goal.realtime_factor = 1.0 if self.realtime else -1.0
 

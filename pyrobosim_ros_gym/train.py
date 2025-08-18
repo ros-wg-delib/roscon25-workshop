@@ -38,6 +38,11 @@ if __name__ == "__main__":
         help="The model type to train.",
     )
     parser.add_argument(
+        "--discrete_actions",
+        action="store_true",
+        help="If true, uses discrete action space. Otherwise, uses continuous action space.",
+    )
+    parser.add_argument(
         "--max-timesteps",
         default=25000,
         type=int,
@@ -76,6 +81,7 @@ if __name__ == "__main__":
         reset_validation_fn=reset_validation_fn,
         realtime=args.realtime,
         max_steps_per_episode=25,
+        discrete_actions=args.discrete_actions,
     )
 
     # Train a model
@@ -85,7 +91,7 @@ if __name__ == "__main__":
             "activation_fn": nn.ReLU,
             "net_arch": [64, 64],
         }
-        model = DQN(  # type: BaseAlgorithm
+        model = DQN(
             "MlpPolicy",
             env=env,
             seed=args.seed,
@@ -130,6 +136,8 @@ if __name__ == "__main__":
             learning_rate=0.0003,
             gamma=0.99,
             batch_size=32,
+            gradient_steps=10,
+            train_freq=(4, "step"),
             tensorboard_log=log_path,
         )
     elif args.model_type == "A2C":
@@ -160,7 +168,7 @@ if __name__ == "__main__":
     log_name = f"{args.env}_{args.model_type}_{date_str}"
     model.learn(
         total_timesteps=args.max_timesteps,
-        progress_bar=True,
+        # progress_bar=True,
         tb_log_name=log_name,
         callback=eval_callback,
     )

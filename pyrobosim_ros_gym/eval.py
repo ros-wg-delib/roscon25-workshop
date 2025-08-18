@@ -20,6 +20,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="The name of the model to evaluate.")
     parser.add_argument(
+        "--discrete_actions",
+        action="store_true",
+        help="If true, uses discrete action space. Otherwise, uses continuous action space.",
+    )
+    parser.add_argument(
         "--num-episodes",
         default=10,
         type=int,
@@ -45,6 +50,7 @@ if __name__ == "__main__":
         node,
         reward_fn=reward_fn,
         max_steps_per_episode=10,
+        discrete_actions=args.discrete_actions,
     )
     env.reset()
 
