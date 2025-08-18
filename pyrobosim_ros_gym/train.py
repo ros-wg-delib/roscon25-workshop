@@ -112,8 +112,8 @@ if __name__ == "__main__":
         policy_kwargs = {
             "activation_fn": nn.ReLU,
             "net_arch": {
-                "pi": [64, 64],
-                "vf": [64, 32],
+                "pi": [64, 64],  # actor
+                "vf": [64, 32],  # critic
             },
         }
         model = PPO(
@@ -128,24 +128,39 @@ if __name__ == "__main__":
             tensorboard_log=log_path,
         )
     elif args.model_type == "SAC":
+        policy_kwargs = {
+            "activation_fn": nn.ReLU,
+            "net_arch": {
+                "pi": [64, 64],  # actor
+                "qf": [64, 32],  # critic (SAC uses qf, not vf)
+            },
+        }
         model = SAC(
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            # policy_kwargs=policy_kwargs,    .. Let's try default values
+            policy_kwargs=policy_kwargs,
             learning_rate=0.0003,
             gamma=0.99,
             batch_size=32,
             gradient_steps=10,
             train_freq=(4, "step"),
+            target_update_interval=50,
             tensorboard_log=log_path,
         )
     elif args.model_type == "A2C":
+        policy_kwargs = {
+            "activation_fn": nn.ReLU,
+            "net_arch": {
+                "pi": [64, 64],  # actor
+                "vf": [64, 32],  # critic
+            },
+        }
         model = A2C(
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            # policy_kwargs=policy_kwargs,    .. Let's try default values
+            policy_kwargs=policy_kwargs,
             learning_rate=0.0007,
             gamma=0.99,
             tensorboard_log=log_path,
@@ -168,7 +183,7 @@ if __name__ == "__main__":
     log_name = f"{args.env}_{args.model_type}_{date_str}"
     model.learn(
         total_timesteps=args.max_timesteps,
-        # progress_bar=True,
+        progress_bar=True,
         tb_log_name=log_name,
         callback=eval_callback,
     )
