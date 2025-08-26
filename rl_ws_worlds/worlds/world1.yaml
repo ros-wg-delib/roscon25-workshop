@@ -1,0 +1,124 @@
+# Problem 1 World
+
+metadata:
+   locations: $PWD/location_data.yaml
+   objects: $PWD/object_data.yaml
+
+params:
+  name: rl_ws_problem_1
+  inflation_radius: 0.01
+  object_radius: 0.01
+
+robots:
+  - name: robot
+    radius: 0.1
+    location: hall
+    path_executor:
+      type: constant_velocity
+    path_planner:
+      type: astar
+      grid_resolution: .1
+      grid_inflation_radius: .1
+
+rooms:
+  - name: hall
+    footprint:
+      type: polygon
+      coords:
+        - [-3, -3]
+        - [3, -3]
+        - [3, 3]
+        - [-3, 3]
+    nav_poses:
+      - position:  # left
+          x: -2.0
+          y: 0.0
+      - position:  # right
+          x: 2.0
+          y: 0.0
+        rotation_eul:
+          yaw: 3.14
+    wall_width: 0.2
+    color: [.1, .1, 0]
+
+locations:
+    - name: table_nw
+      parent: hall
+      category: table
+      pose:
+        position:
+          x: -2
+          y: 2
+    - name: table_n
+      parent: hall
+      category: table
+      pose:
+        position:
+          x: 0
+          y: 2
+    - name: table_ne
+      parent: hall
+      category: table
+      pose:
+        position:
+          x: 2
+          y: 2
+    - name: table_w
+      parent: hall
+      category: table
+      pose:
+        position:
+          x: -2
+          y: 0
+    - name: table_c
+      parent: hall
+      category: table
+      pose:
+        position:
+          x: 0
+          y: 0
+    - name: table_e
+      parent: hall
+      category: table
+      pose:
+        position:
+          x: 2
+          y: 0
+    - name: table_sw
+      parent: hall
+      category: table
+      pose:
+        position:
+          x: -2
+          y: -2
+    - name: table_s
+      parent: hall
+      category: table
+      pose:
+        position:
+          x: 0
+          y: -2
+    - name: table_se
+      parent: hall
+      category: table
+      pose:
+        position:
+          x: 2
+          y: -2
+
+objects:
+  - name: plant0
+    parent: table_nw
+    category: plant_good
+  - name: plant1
+    parent: table_ne
+    category: plant_bad
+  - name: plant2
+    parent: table_c
+    category: plant_bad
+  - name: plant3
+    parent: table_sw
+    category: plant_good
+  - name: plant4
+    parent: table_se
+    category: plant_good
