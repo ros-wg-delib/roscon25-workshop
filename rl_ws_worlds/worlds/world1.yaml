@@ -112,10 +112,10 @@ objects:
     category: plant_good
   - name: plant1
     parent: table_ne
-    category: plant_bad
+    category: plant_evil
   - name: plant2
     parent: table_c
-    category: plant_bad
+    category: plant_good
   - name: plant3
     parent: table_sw
     category: plant_good

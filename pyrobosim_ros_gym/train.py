@@ -27,7 +27,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--total-timesteps",
-        default=10000,
+        default=100,
         type=int,
         help="The number of total timesteps to train for.",
     )
@@ -49,23 +49,22 @@ if __name__ == "__main__":
     if args.model_type == "DQN":
         policy_kwargs = {
             "activation_fn": nn.ReLU,
-            "net_arch": [64, 64],
+            "net_arch": [8, 4],
         }
         model = DQN(  # type: BaseAlgorithm
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            policy_kwargs=policy_kwargs,
+            # policy_kwargs=policy_kwargs,
             gamma=0.99,
             exploration_initial_eps=0.75,
-            exploration_final_eps=0.1,
+            exploration_final_eps=0.2,
             exploration_fraction=0.25,
-            learning_starts=100,
-            learning_rate=0.0001,
-            batch_size=32,
-            gradient_steps=10,
-            train_freq=(4, "step"),
-            target_update_interval=500,
+            learning_starts=args.total_timesteps // 4,
+            learning_rate=0.001,
+            batch_size=2,
+            train_freq=(1, "step"),
+            target_update_interval=1,
             tensorboard_log=log_path,
         )
     elif args.model_type == "PPO":
@@ -83,8 +82,8 @@ if __name__ == "__main__":
             policy_kwargs=policy_kwargs,
             gamma=0.99,
             learning_rate=0.0003,
-            batch_size=32,
-            n_steps=64,
+            batch_size=2,
+            n_steps=2,
             tensorboard_log=log_path,
         )
     elif args.model_type == "SAC":
@@ -99,13 +98,19 @@ if __name__ == "__main__":
             tensorboard_log=log_path,
         )
     elif args.model_type == "A2C":
+        # policy_kwargs = {
+        #     "activation_fn": nn.ReLU,
+        #     "net_arch": [8, 4],
+        # }
         model = A2C(
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            # policy_kwargs=policy_kwargs,    .. Let's try default values
+            # policy_kwargs=policy_kwargs,
             learning_rate=0.0003,
             gamma=0.99,
+            # n_steps=1,
+            stats_window_size=2,
             tensorboard_log=log_path,
         )
     else:
