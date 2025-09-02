@@ -205,12 +205,17 @@ class PyRoboSimRosEnv(gym.Env):
         return obs
         
     def mark_table(self, loc):
-        state_req = SetLocationState.Request()
-        state_req.location_name = loc
-        state_req.open = False
-        state_req.lock = False
-        state_future = self.set_location_state_client.call_async(state_req)
-        rclpy.spin_until_future_complete(self.node, state_future)
+        close_goal = ExecuteTaskAction.Goal()
+        close_goal.action = TaskAction()
+        close_goal.action.robot = "robot"
+        close_goal.action.type = "close"
+        close_goal.action.target_location = loc
+
+        goal_future = self.execute_action_client.send_goal_async(close_goal)
+        rclpy.spin_until_future_complete(self.node, goal_future)
+
+        result_future = goal_future.result().get_result_async()
+        rclpy.spin_until_future_complete(self.node, result_future)
 
     def _calculate_reward(self, action):
         # Calculate reward

@@ -19,6 +19,9 @@ robots:
       type: astar
       grid_resolution: .1
       grid_inflation_radius: .1
+    action_execution_options:
+      close:
+        battery_usage: 20
 
 rooms:
   - name: hall
@@ -108,17 +111,17 @@ locations:
 
 objects:
   - name: plant0
-    parent: table_nw
+    # parent: table_nw
     category: plant_good
   - name: plant1
-    parent: table_ne
+    # parent: table_ne
     category: plant_evil
   - name: plant2
-    parent: table_c
+    # parent: table_c
     category: plant_good
   - name: plant3
-    parent: table_sw
+    # parent: table_sw
     category: plant_good
   - name: plant4
-    parent: table_se
+    # parent: table_se
     category: plant_good
