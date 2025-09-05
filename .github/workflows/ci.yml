@@ -33,3 +33,5 @@ jobs:
         run: pixi run lint
       - name: Build the environment
         run: pixi run build
+      - name: Pre-commit
+        uses: pre-commit/action@v3.0.1
