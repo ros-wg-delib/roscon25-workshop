@@ -9,6 +9,11 @@ from rclpy.node import Node
 from stable_baselines3 import DQN, PPO, SAC, A2C
 
 from pyrobosim_ros_env import PyRoboSimRosEnv
+from envs.banana import (
+    banana_picked_reward,
+    banana_on_table_reward,
+    banana_on_table_avoid_soda_reward,
+)
 
 
 if __name__ == "__main__":
@@ -20,14 +25,31 @@ if __name__ == "__main__":
         type=int,
         help="The number of episodes to evaluate.",
     )
+    parser.add_argument("--seed", default=42, type=int, help="The RNG seed to use.")
     args = parser.parse_args()
 
+    # Create the environment
     rclpy.init()
     node = Node("pyrobosim_ros_env")
-    env = PyRoboSimRosEnv(node, max_steps_per_episode=10)
+    env_type = args.model.split("_")[0]
+    if env_type == "PickBanana":
+        reward_fn = banana_picked_reward
+    elif env_type == "PlaceBanana":
+        reward_fn = banana_on_table_reward
+    elif env_type == "PlaceBananaNoSoda":
+        reward_fn = banana_on_table_avoid_soda_reward
+    else:
+        raise ValueError(f"Invalid environment name: {env_type}")
+
+    env = PyRoboSimRosEnv(
+        node,
+        reward_fn=reward_fn,
+        max_steps_per_episode=10,
+    )
+    env.reset()
 
     # Load a model
-    model_type = args.model.split("_")[0]
+    model_type = args.model.split("_")[1]
     if model_type == "DQN":
         model = DQN.load(args.model, env=env)
     elif model_type == "PPO":
@@ -42,21 +64,16 @@ if __name__ == "__main__":
     # Evaluate it for some steps
     vec_env = model.get_env()
     assert vec_env is not None, "Environment must be defined."
+    vec_env.seed(args.seed)
     obs = vec_env.reset()
     num_episodes = 0
     successful_episodes = 0
     while num_episodes < args.num_episodes:
-        # print("." * 10)
-        # print(f"{obs=}")
         action, _ = model.predict(obs, deterministic=True)
-        # print(f"{action=}")
-        obs, rewards, dones, info = vec_env.step(action)
-        banana = vec_env.env_method("has_banana")[0]
-        # print(f"{rewards=}")
+        obs, rewards, dones, infos = vec_env.step(action)
         if dones[0]:
             num_episodes += 1
-            if banana:
-                print("🍌")
+            if infos[0]["success"]:
                 successful_episodes += 1
     print(
         f"{successful_episodes} of {num_episodes} ({100.*successful_episodes/num_episodes}%) episodes successful."

@@ -15,12 +15,38 @@ from pyrobosim_msgs.srv import RequestWorldInfo, RequestWorldState, ResetWorld
 class PyRoboSimRosEnv(gym.Env):
     """Gym environment wrapping around the PyRoboSim ROS Interface."""
 
-    def __init__(self, node, max_steps_per_episode=50, realtime=True):
+    def __init__(
+        self,
+        node,
+        *,
+        reward_fn,
+        reset_validation_fn=None,
+        max_steps_per_episode=50,
+        realtime=True,
+    ):
+        """
+        Instantiates a PyRoboSim ROS environment.
+
+        :param node: The ROS node to use for creating clients.
+        :param reward_fn: Function that calculates the reward and termination criteria.
+        :param reset_validation_fn: Function that calculates whether a reset is valid.
+            If None (default), all resets are valid.
+        :param max_steps_per_episode: Maximum number of steps before truncating an episode.
+        :param realtime: If True, commands PyRoboSim to run actions in real time.
+            If False, actions run as quickly as possible for faster training.
+        """
         super().__init__()
         self.node = node
         self.realtime = realtime
         self.max_steps_per_episode = max_steps_per_episode
+        self.reward_fn = lambda goal, result: reward_fn(self, goal, result)
+        if reset_validation_fn is None:
+            self.reset_validation_fn = lambda: True
+        else:
+            self.reset_validation_fn = lambda: reset_validation_fn(self)
         self.step_number = 0
+        self.previous_location = None
+        self.previous_action_type = None
 
         self.request_info_client = node.create_client(
             RequestWorldInfo, "/request_world_info"
@@ -97,9 +123,8 @@ class PyRoboSimRosEnv(gym.Env):
         print(f"{self.observation_space=}")
 
     def step(self, action):
-        info = {}
-
-        previous_location = self.world_state.robots[0].last_visited_location
+        """Steps the environment with a specific action."""
+        self.previous_location = self.world_state.robots[0].last_visited_location
 
         goal = ExecuteTaskAction.Goal()
         goal.action = self.integer_to_action[action]
@@ -121,26 +146,32 @@ class PyRoboSimRosEnv(gym.Env):
             )
 
         observation = self._get_obs()
-        reward, terminated = self._calculate_reward(
-            goal, action_result, previous_location
-        )
+        reward, terminated, info = self.reward_fn(goal, action_result)
+        self.previous_action_type = goal.action.type
 
         return observation, reward, terminated, truncated, info
 
     def reset(self, seed=None, options=None):
+        """Resets the environment with a specified seed and options."""
         # IMPORTANT: Must call this first to seed the random number generator
         super().reset(seed=seed)
-        print(f"Resetting environment")
         self.step_number = 0
-
-        future = self.reset_world_client.call_async(
-            ResetWorld.Request(seed=(seed or -1))
-        )
-        rclpy.spin_until_future_complete(self.node, future)
-
-        observation = self._get_obs()
         info = {}
 
+        valid_reset = False
+        num_reset_attempts = 0
+        while not valid_reset:
+            future = self.reset_world_client.call_async(
+                ResetWorld.Request(seed=(seed or -1))
+            )
+            rclpy.spin_until_future_complete(self.node, future)
+
+            observation = self._get_obs()
+
+            valid_reset = self.reset_validation_fn()
+            num_reset_attempts += 1
+
+        print(f"Reset environment in {num_reset_attempts} attempt(s).")
         return observation, info
 
     def _get_obs(self):
@@ -173,48 +204,3 @@ class PyRoboSimRosEnv(gym.Env):
 
         self.world_state = world_state
         return obs
-
-    def _calculate_reward(self, goal, action_result, previous_location):
-        # Calculate reward
-        reward = 0.0
-        terminated = False
-        robot_state = self.world_state.robots[0]
-        # Discourage repeating the same navigation action or failing to pick/place.
-        if (goal.action.type == "navigate") and (
-            goal.action.target_location == previous_location
-        ):
-            reward -= 1.0
-        if action_result.execution_result.status != ExecutionResult.SUCCESS:
-            reward -= 0.5
-        # Discourage picking/placing when not at a location (for initial states)
-        if (goal.action.type != "navigate") and (
-            robot_state.last_visited_location not in self.all_locations
-        ):
-            reward -= 1.0
-        # Robot gets positive reward based on holding a banana,
-        # and negative reward for being in locations without bananas.
-        at_banana_location = False
-        for obj in self.world_state.objects:
-            if obj.category == "banana":
-                if obj.parent == robot_state.last_visited_location:
-                    at_banana_location = True
-                elif obj.name == robot_state.manipulated_object:
-                    print(
-                        f"🍌 At {robot_state.last_visited_location} and holding {obj.name}. "
-                        f"Episode succeeded in {self.step_number} steps!"
-                    )
-                    reward += 10.0
-                    terminated = True
-                    at_banana_location = True
-                    assert self.has_banana(), "self.has_banana() should return True."
-                    break
-        if not at_banana_location:
-            reward -= 0.5
-        return reward, terminated
-
-    def has_banana(self):
-        robot_state = self.world_state.robots[0]
-        for obj in self.world_state.objects:
-            if obj.category == "banana" and obj.name == robot_state.manipulated_object:
-                return True
-        return False
