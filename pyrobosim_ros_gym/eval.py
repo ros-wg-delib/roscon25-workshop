@@ -8,26 +8,47 @@ import rclpy
 from rclpy.node import Node
 from stable_baselines3 import DQN, PPO, SAC, A2C
 
-from pyrobosim_ros_env import PyRoboSimRosEnv
+from pyrobosim_ros_gym.envs import get_env_by_name
+from envs.banana import (
+    banana_picked_reward,
+    banana_on_table_reward,
+    banana_on_table_avoid_soda_reward,
+)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="The name of the model to evaluate.")
     parser.add_argument(
+        "--discrete_actions",
+        action="store_true",
+        help="If true, uses discrete action space. Otherwise, uses continuous action space.",
+    )
+    parser.add_argument(
         "--num-episodes",
         default=3,
         type=int,
         help="The number of episodes to evaluate.",
     )
+    parser.add_argument("--seed", default=42, type=int, help="The RNG seed to use.")
     args = parser.parse_args()
 
+    env_type, model_type, _ = args.model.split("_")
+
+    # Create the environment
     rclpy.init()
     node = Node("pyrobosim_ros_env")
-    env = PyRoboSimRosEnv(node, max_steps_per_episode=100, realtime=True)
+    
+    env = get_env_by_name(
+        env_type,
+        node,
+        max_steps_per_episode=10,
+        realtime=True,
+        discrete_actions=False,  # TODO
+    )
+    env.reset()
 
     # Load a model
-    model_type = args.model.split("_")[0]
     if model_type == "DQN":
         model = DQN.load(args.model, env=None)
     elif model_type == "PPO":

@@ -25,12 +25,41 @@ def _dist(a: Point, b: Point) -> float:
 class PyRoboSimRosEnv(gym.Env):
     """Gym environment wrapping around the PyRoboSim ROS Interface."""
 
-    def __init__(self, node, max_steps_per_episode=50, realtime=True):
+    def __init__(
+        self,
+        node,
+        reward_fn,
+        reset_validation_fn=None,
+        max_steps_per_episode=50,
+        realtime=True,
+        discrete_actions=True,
+    ):
+        """
+        Instantiates a PyRoboSim ROS environment.
+
+        :param node: The ROS node to use for creating clients.
+        :param reward_fn: Function that calculates the reward and termination criteria.
+        :param reset_validation_fn: Function that calculates whether a reset is valid.
+            If None (default), all resets are valid.
+        :param max_steps_per_episode: Maximum number of steps before truncating an episode.
+        :param realtime: If True, commands PyRoboSim to run actions in real time.
+            If False, actions run as quickly as possible for faster training.
+        :param discrete_actions: If True, uses discrete actions, else uses continuous.
+        """
         super().__init__()
         self.node = node
         self.realtime = realtime
         self.max_steps_per_episode = max_steps_per_episode
+        self.discrete_actions = discrete_actions
+        self.reward_fn = lambda goal, result: reward_fn(self, goal, result)
+        if reset_validation_fn is None:
+            self.reset_validation_fn = lambda: True
+        else:
+            self.reset_validation_fn = lambda: reset_validation_fn(self)
+
         self.step_number = 0
+        self.previous_location = None
+        self.previous_action_type = None
 
         self.request_info_client = node.create_client(
             RequestWorldInfo, "/request_world_info"
@@ -73,9 +102,20 @@ class PyRoboSimRosEnv(gym.Env):
         ]
         # print(f"{self.good_plants=}")
 
+<<<<<<< HEAD
         self.num_actions = 2  # stay ducked or water plant
         self.action_space = spaces.Discrete(self.num_actions)
         # print(f"{self.action_space=}")
+=======
+        if self.discrete_actions:
+            self.action_space = spaces.Discrete(self.num_actions)
+        else:
+            self.action_space = spaces.Box(
+                low=np.zeros(self.num_actions, dtype=np.float32),
+                high=np.ones(self.num_actions, dtype=np.float32),
+            )
+        print(f"{self.action_space=}")
+>>>>>>> origin/continuous-actions
 
         # Observation space is defined by:
         self.max_n_objects = 3
@@ -97,7 +137,7 @@ class PyRoboSimRosEnv(gym.Env):
             "table_w",
             "table_nw",
             "table_n",
-        ]
+        ] 
 
     def get_next_navigation_action(self):
         self.waypoint_i = (self.waypoint_i + 1) % len(self.waypoints)
@@ -112,13 +152,36 @@ class PyRoboSimRosEnv(gym.Env):
         return self.waypoints[self.waypoint_i]
 
     def step(self, action):
+<<<<<<< HEAD
         info = {}
+=======
+        """Steps the environment with a specific action."""
+        self.previous_location = self.world_state.robots[0].last_visited_location
+
+        goal = ExecuteTaskAction.Goal()
+        if self.discrete_actions:
+            goal.action = self.integer_to_action[action]
+        else:
+            goal.action = self.integer_to_action[np.argmax(action)]
+        goal.action.robot = "robot"
+        goal.realtime_factor = 1.0 if self.realtime else -1.0
+
+        goal_future = self.execute_action_client.send_goal_async(goal)
+        rclpy.spin_until_future_complete(self.node, goal_future)
+
+        result_future = goal_future.result().get_result_async()
+        rclpy.spin_until_future_complete(self.node, result_future)
+
+        action_result = result_future.result().result
+        self.step_number += 1
+>>>>>>> origin/continuous-actions
         truncated = self.step_number >= self.max_steps_per_episode
         if truncated:
             print(
                 f"Maximum steps ({self.max_steps_per_episode}) exceeded. Truncated episode."
             )
 
+<<<<<<< HEAD
         # print(f"{'*'*10}")
         # print(f"{action=}")
 
@@ -135,6 +198,11 @@ class PyRoboSimRosEnv(gym.Env):
 
         observation = self._get_obs()  # update self.world_state
         # print(f"{observation=}")
+=======
+        observation = self._get_obs()
+        reward, terminated, info = self.reward_fn(goal, action_result)
+        self.previous_action_type = goal.action.type
+>>>>>>> origin/continuous-actions
 
         return observation, reward, terminated, truncated, info
     
@@ -151,8 +219,10 @@ class PyRoboSimRosEnv(gym.Env):
         rclpy.spin_until_future_complete(self.node, result_future)
 
     def reset(self, seed=None, options=None):
+        """Resets the environment with a specified seed and options."""
         # IMPORTANT: Must call this first to seed the random number generator
         super().reset(seed=seed)
+<<<<<<< HEAD
         print(f"Resetting environment {seed=}")
         future = self.reset_world_client.call_async(
             ResetWorld.Request(seed=(seed or -1))
@@ -183,6 +253,26 @@ class PyRoboSimRosEnv(gym.Env):
             plants_by_distance[dist] = obj
 
         return plants_by_distance
+=======
+        self.step_number = 0
+        info = {}
+
+        valid_reset = False
+        num_reset_attempts = 0
+        while not valid_reset:
+            future = self.reset_world_client.call_async(
+                ResetWorld.Request(seed=(seed or -1))
+            )
+            rclpy.spin_until_future_complete(self.node, future)
+
+            observation = self._get_obs()
+
+            valid_reset = self.reset_validation_fn()
+            num_reset_attempts += 1
+
+        print(f"Reset environment in {num_reset_attempts} attempt(s).")
+        return observation, info
+>>>>>>> origin/continuous-actions
 
     def _get_obs(self):
         """Calculate the observations"""
@@ -203,6 +293,7 @@ class PyRoboSimRosEnv(gym.Env):
 
         self.world_state = world_state
         return obs
+<<<<<<< HEAD
         
     def mark_table(self, loc):
         close_goal = ExecuteTaskAction.Goal()
@@ -262,3 +353,5 @@ class PyRoboSimRosEnv(gym.Env):
             if w:
                 n_watered += 1
         return n_watered / len(self.watered)
+=======
+>>>>>>> origin/continuous-actions
