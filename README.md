@@ -38,18 +38,29 @@ pixi shell
 
 ## Training a model
 
+### Start Environment
+
 ```bash
 pixi run start_world --headless
 ```
 
+### Choose modely type
+For example PPO
 ```bash
 pixi run train --env PickBanana --model-type PPO --log
 ```
+Or DQN.
+Note that this needs the `--discrete-actions` flag.
+```bash
+pixi run train --env PickBanana --model-type DQN --discrete-actions --log
+```
 
+### You may find tensorboard useful
 ```bash
 pixi run tensorboard
 ```
 
+### See you freshly trained policy in action
 ```bash
 pixi run eval --model <path_to_model.pt>
 ```

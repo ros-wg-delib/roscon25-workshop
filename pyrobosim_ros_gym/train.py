@@ -38,6 +38,11 @@ if __name__ == "__main__":
         help="The model type to train.",
     )
     parser.add_argument(
+        "--discrete_actions",
+        action="store_true",
+        help="If true, uses discrete action space. Otherwise, uses continuous action space.",
+    )
+    parser.add_argument(
         "--max-timesteps",
         default=25000,
         type=int,
@@ -76,6 +81,7 @@ if __name__ == "__main__":
         reset_validation_fn=reset_validation_fn,
         realtime=args.realtime,
         max_steps_per_episode=25,
+        discrete_actions=args.discrete_actions,
     )
 
     # Train a model
@@ -85,7 +91,7 @@ if __name__ == "__main__":
             "activation_fn": nn.ReLU,
             "net_arch": [64, 64],
         }
-        model = DQN(  # type: BaseAlgorithm
+        model = DQN(
             "MlpPolicy",
             env=env,
             seed=args.seed,
@@ -106,8 +112,8 @@ if __name__ == "__main__":
         policy_kwargs = {
             "activation_fn": nn.ReLU,
             "net_arch": {
-                "pi": [64, 64],
-                "vf": [64, 32],
+                "pi": [64, 64],  # actor
+                "vf": [64, 32],  # critic
             },
         }
         model = PPO(
@@ -122,22 +128,39 @@ if __name__ == "__main__":
             tensorboard_log=log_path,
         )
     elif args.model_type == "SAC":
+        policy_kwargs = {
+            "activation_fn": nn.ReLU,
+            "net_arch": {
+                "pi": [64, 64],  # actor
+                "qf": [64, 32],  # critic (SAC uses qf, not vf)
+            },
+        }
         model = SAC(
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            # policy_kwargs=policy_kwargs,    .. Let's try default values
+            policy_kwargs=policy_kwargs,
             learning_rate=0.0003,
             gamma=0.99,
             batch_size=32,
+            gradient_steps=10,
+            train_freq=(4, "step"),
+            target_update_interval=50,
             tensorboard_log=log_path,
         )
     elif args.model_type == "A2C":
+        policy_kwargs = {
+            "activation_fn": nn.ReLU,
+            "net_arch": {
+                "pi": [64, 64],  # actor
+                "vf": [64, 32],  # critic
+            },
+        }
         model = A2C(
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            # policy_kwargs=policy_kwargs,    .. Let's try default values
+            policy_kwargs=policy_kwargs,
             learning_rate=0.0007,
             gamma=0.99,
             tensorboard_log=log_path,
