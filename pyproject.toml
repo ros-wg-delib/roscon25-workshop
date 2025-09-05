@@ -32,6 +32,8 @@ shapely = ">=2.0.1"
 trimesh = ">=4.7.1,<5"
 tqdm = ">=4.67.1,<5"
 tensorboard = "*"
+optuna = ">=4.5.0,<5"
+optuna-dashboard = ">=0.19.0,<0.20"
 
 [tool.pixi.tasks]
 build = "colcon build --symlink-install"
