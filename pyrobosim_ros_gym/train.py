@@ -15,16 +15,16 @@ from stable_baselines3.common.callbacks import (
 from torch import nn
 
 from pyrobosim_ros_gym.envs.pyrobosim_ros_env import PyRoboSimRosEnv
-from pyrobosim_ros_gym.envs import get_env_by_name
+from pyrobosim_ros_gym.envs import get_env_by_name, available_envs_w_subtype
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--env",
-        default="BananaPick",
-        choices=["BananaPick", "BananaPlace", "BananaPlaceNoSoda"],
+        choices=available_envs_w_subtype(),
         help="The environment to use.",
+        required=True
     )
     parser.add_argument(
         "--model-type",
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         "--log", action="store_true", help="If true, logs data to Tensorboard."
     )
     args = parser.parse_args()
-
+    
     # Create the environment
     rclpy.init()
     node = Node("pyrobosim_ros_env")

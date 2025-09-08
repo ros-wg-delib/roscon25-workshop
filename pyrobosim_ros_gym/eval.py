@@ -9,11 +9,6 @@ from rclpy.node import Node
 from stable_baselines3 import DQN, PPO, SAC, A2C
 
 from pyrobosim_ros_gym.envs import get_env_by_name
-from envs.banana import (
-    banana_picked_reward,
-    banana_on_table_reward,
-    banana_on_table_avoid_soda_reward,
-)
 
 
 if __name__ == "__main__":
@@ -33,12 +28,14 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=42, type=int, help="The RNG seed to use.")
     args = parser.parse_args()
 
-    env_type, model_type, _ = args.model.split("_")
+    model_name_parts = args.model.split("_")
+    env_type = model_name_parts[0]
+    model_type = model_name_parts[1]
 
     # Create the environment
     rclpy.init()
     node = Node("pyrobosim_ros_env")
-    
+
     env = get_env_by_name(
         env_type,
         node,

@@ -5,7 +5,7 @@ metadata:
    objects: $PWD/object_data.yaml
 
 params:
-  name: rl_ws_problem_1
+  name: greenhouse
   inflation_radius: 0.01
   object_radius: 0.01
 
