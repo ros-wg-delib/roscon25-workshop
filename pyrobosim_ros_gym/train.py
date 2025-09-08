@@ -24,7 +24,7 @@ if __name__ == "__main__":
         "--env",
         choices=available_envs_w_subtype(),
         help="The environment to use.",
-        required=True
+        required=True,
     )
     parser.add_argument(
         "--model-type",
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         "--log", action="store_true", help="If true, logs data to Tensorboard."
     )
     args = parser.parse_args()
-    
+
     # Create the environment
     rclpy.init()
     node = Node("pyrobosim_ros_env")

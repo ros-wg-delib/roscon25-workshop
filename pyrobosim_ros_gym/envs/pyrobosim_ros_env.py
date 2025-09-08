@@ -15,7 +15,6 @@ from pyrobosim_msgs.srv import (
 )
 
 
-
 class PyRoboSimRosEnv(gym.Env):
     """Gym environment wrapping around the PyRoboSim ROS Interface."""
 
@@ -101,18 +100,16 @@ class PyRoboSimRosEnv(gym.Env):
     def get_next_navigation_action(self):
         self.waypoint_i = (self.waypoint_i + 1) % len(self.waypoints)
         return self.get_current_navigation_action()
-    
+
     def get_current_navigation_action(self):
-        return TaskAction(
-            type="navigate", target_location=self.get_current_location()
-        )
-    
+        return TaskAction(type="navigate", target_location=self.get_current_location())
+
     def get_current_location(self):
         return self.waypoints[self.waypoint_i]
 
     def step(self, action):
         raise NotImplementedError("implement in sub-class")
-    
+
     def go_to_next_wp(self):
         nav_goal = ExecuteTaskAction.Goal()
         nav_goal.action = self.get_next_navigation_action()

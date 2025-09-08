@@ -13,11 +13,13 @@ from pyrobosim_ros.ros_interface import WorldROSWrapper
 
 from pyrobosim_ros_gym.envs import get_env_class_by_name, available_env_classes
 
+
 def create_ros_node(world_file_path) -> WorldROSWrapper:
     """Initializes ROS node"""
     rclpy.init()
     world = WorldYamlLoader().from_file(world_file_path)
     return WorldROSWrapper(world=world, state_pub_rate=0.1, dynamics_rate=0.01)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -28,7 +30,7 @@ if __name__ == "__main__":
         "--env",
         choices=available_env_classes(),
         help="The environment to use.",
-        required=True
+        required=True,
     )
     args = parser.parse_args()
 

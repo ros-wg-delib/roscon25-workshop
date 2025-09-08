@@ -24,7 +24,7 @@ def _dist(a: Point, b: Point) -> float:
 
 class GreenhouseEnv(PyRoboSimRosEnv):
     sub_type = Enum("sub_type", "Deterministic Random")
-    world_file_path = os.path.join("rl_ws_worlds","worlds","greenhouse.yaml")
+    world_file_path = os.path.join("rl_ws_worlds", "worlds", "greenhouse.yaml")
 
     def __init__(
         self,

@@ -6,10 +6,13 @@ import rclpy
 import numpy as np
 from gymnasium import spaces
 from pyrobosim_msgs.action import ExecuteTaskAction
-from pyrobosim_msgs.msg import (ExecutionResult, ObjectState, TaskAction,
-                                WorldState)
-from pyrobosim_msgs.srv import (RequestWorldInfo, RequestWorldState,
-                                ResetWorld, SetLocationState)
+from pyrobosim_msgs.msg import ExecutionResult, ObjectState, TaskAction, WorldState
+from pyrobosim_msgs.srv import (
+    RequestWorldInfo,
+    RequestWorldState,
+    ResetWorld,
+    SetLocationState,
+)
 
 from pyrobosim_ros_gym.envs.pyrobosim_ros_env import PyRoboSimRosEnv
 
@@ -155,7 +158,7 @@ class BananaEnv(PyRoboSimRosEnv):
 
         print(f"Reset environment in {num_reset_attempts} attempt(s).")
         return observation, info
-    
+
     def _get_obs(self):
         """Calculate the observation. All elements are either -1.0 or +1.0."""
         future = self.request_state_client.call_async(RequestWorldState.Request())

@@ -14,14 +14,17 @@ def available_envs_w_subtype() -> List[str]:
             envs.append("".join((name, sub_type.name)))
     return envs
 
+
 def available_env_classes() -> List[str]:
     return list(CLASS_BY_NAME.keys())
+
 
 def get_env_class_by_name(req_name: str):
     for name, env_class in CLASS_BY_NAME.items():
         if req_name.startswith(name):
             return env_class
     raise RuntimeError(f"No environment found for {req_name}.")
+
 
 def get_env_by_name(
     req_name: str, node, max_steps_per_episode, realtime, discrete_actions
