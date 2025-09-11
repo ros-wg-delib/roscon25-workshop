@@ -39,6 +39,11 @@ if __name__ == "__main__":
         help="If true, uses discrete action space. Otherwise, uses continuous action space.",
     )
     parser.add_argument(
+        "--discrete_actions",
+        action="store_true",
+        help="If true, uses discrete action space. Otherwise, uses continuous action space.",
+    )
+    parser.add_argument(
         "--max-timesteps",
         default=25000,
         type=int,
@@ -60,7 +65,6 @@ if __name__ == "__main__":
         args.env,
         node,
         max_steps_per_episode=25,
-        realtime=args.realtime,
         discrete_actions=args.discrete_actions,
     )
 

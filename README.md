@@ -44,7 +44,7 @@ pixi shell
 pixi run start_world --headless
 ```
 
-### Choose modely type
+### Choose model type
 For example PPO
 ```bash
 pixi run train --env PickBanana --model-type PPO --log
@@ -60,7 +60,7 @@ pixi run train --env PickBanana --model-type DQN --discrete-actions --log
 pixi run tensorboard
 ```
 
-### See you freshly trained policy in action
+### See your freshly trained policy in action
 ```bash
 pixi run eval --model <path_to_model.pt>
 ```
