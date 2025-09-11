@@ -43,7 +43,9 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install dependencies
-        run: pip install pytest pytest-md pytest-emoji sybil
+        run: pip install pytest pytest-md pytest-emoji sybil docker
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v4
       - name: Run pytest
         uses: pavelzw/pytest-action@v2
         with:
