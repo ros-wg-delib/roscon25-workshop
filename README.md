@@ -87,7 +87,7 @@ pixi run train --env PickBanana --model-type DQN --discrete-actions --log
 pixi run tensorboard
 ```
 
-### See you freshly trained policy in action
+### See your freshly trained policy in action
 
 <!--- skip-next --->
 ```bash

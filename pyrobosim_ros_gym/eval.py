@@ -40,8 +40,7 @@ if __name__ == "__main__":
         env_type,
         node,
         max_steps_per_episode=10,
-        realtime=True,
-        discrete_actions=False,  # TODO
+        discrete_actions=args.discrete_actions,
     )
     env.reset()
 
