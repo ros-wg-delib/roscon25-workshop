@@ -33,6 +33,24 @@ jobs:
         run: pixi run lint
       - name: Build the environment
         run: pixi run build
+  doc_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Install python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install pytest pytest-md pytest-emoji sybil
+      - name: Run pytest
+        uses: pavelzw/pytest-action@v2
+        with:
+          verbose: true
+          emoji: true
+          job-summary: true
+          custom-arguments: '-vvs test/'
   lint:
     runs-on: ubuntu-latest
     steps:
