@@ -11,7 +11,7 @@ from pyrobosim.core import WorldYamlLoader
 from pyrobosim.gui import start_gui
 from pyrobosim_ros.ros_interface import WorldROSWrapper
 
-from pyrobosim_ros_gym.envs import get_env_class_by_name, available_env_classes
+from pyrobosim_ros_gym.envs import get_env_ENV_CLASS_FROM_NAME, available_env_classes
 
 
 def create_ros_node(world_file_path) -> WorldROSWrapper:
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    env_class = get_env_class_by_name(args.env)
+    env_class = get_env_ENV_CLASS_FROM_NAME(args.env)
     node = create_ros_node(env_class.world_file_path)
 
     if args.headless:

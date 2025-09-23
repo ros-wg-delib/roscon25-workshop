@@ -1,7 +1,7 @@
 import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
-
+from enum import Enum
 import rclpy
 from rclpy.action import ActionClient
 
@@ -18,6 +18,7 @@ from pyrobosim_msgs.srv import (
 class PyRoboSimRosEnv(gym.Env):
     """Gym environment wrapping around the PyRoboSim ROS Interface."""
 
+    sub_type = Enum("sub_type", "DEFINE_IN_SUBCLASS")
     world_file_path = "DEFINE_IN_SUBCLASS"
 
     def __init__(
