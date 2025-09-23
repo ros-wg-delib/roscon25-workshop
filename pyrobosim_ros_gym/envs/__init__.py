@@ -3,6 +3,7 @@ from typing import List, Dict
 from pyrobosim_ros_gym.envs.banana import BananaEnv
 from pyrobosim_ros_gym.envs.greenhouse import GreenhouseEnv
 from pyrobosim_ros_gym.envs.pyrobosim_ros_env import PyRoboSimRosEnv
+import rclpy
 
 ENV_CLASS_FROM_NAME: Dict[str, type[PyRoboSimRosEnv]] = {
     "Banana": BananaEnv,
@@ -11,6 +12,7 @@ ENV_CLASS_FROM_NAME: Dict[str, type[PyRoboSimRosEnv]] = {
 
 
 def available_envs_w_subtype() -> List[str]:
+    """Return a list of environment types including subtypes."""
     envs: List[str] = []
     for name, env_class in ENV_CLASS_FROM_NAME.items():
         for sub_type in env_class.sub_type:
@@ -19,10 +21,12 @@ def available_envs_w_subtype() -> List[str]:
 
 
 def available_env_classes() -> List[str]:
+    """Return names of environment classes"""
     return list(ENV_CLASS_FROM_NAME.keys())
 
 
-def get_env_ENV_CLASS_FROM_NAME(req_name: str):
+def get_env_env_class_from_name(req_name: str):
+    """Return the class of a chosen environment name (ignoring `sub_type`s)."""
     for name, env_class in ENV_CLASS_FROM_NAME.items():
         if req_name.startswith(name):
             return env_class
@@ -30,18 +34,31 @@ def get_env_ENV_CLASS_FROM_NAME(req_name: str):
 
 
 def get_env_by_name(
-    req_name: str, node, max_steps_per_episode, realtime, discrete_actions
+    env_name: str,
+    node: rclpy.Node,
+    max_steps_per_episode: int,
+    realtime: bool,
+    discrete_actions: bool,
 ) -> PyRoboSimRosEnv:
+    """
+    Instantiate an environment class for a given type and `sub_type`.
+
+    :param env_name: Name of environment, with subtype, e.g. BananaPick.
+    :param node: Node instance needed for ROS communication.
+    :param max_steps_per_episode: Limit the steps (when to end the episode).
+    :param realtime: Whether actions take time.
+    :param discrete_actions: Choose discrete actions (needed for DQN).
+    """
     base_class = None
     sub_type_str = None
     for name, env_class in ENV_CLASS_FROM_NAME.items():
-        if req_name.startswith(name):
+        if env_name.startswith(name):
             base_class = env_class
-            sub_type_str = req_name.replace(name, "")
+            sub_type_str = env_name.replace(name, "")
             break
-    assert base_class == get_env_ENV_CLASS_FROM_NAME(req_name)
+    assert base_class == get_env_env_class_from_name(env_name)
     if base_class is None:
-        raise RuntimeError(f"No environment found for {req_name}.")
+        raise RuntimeError(f"No environment found for {env_name}.")
     sub_type = None
     for st in base_class.sub_type:
         if st.name == sub_type_str:
