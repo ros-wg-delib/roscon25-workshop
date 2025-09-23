@@ -7,8 +7,9 @@ import argparse
 import rclpy
 from rclpy.node import Node
 from stable_baselines3 import DQN, PPO, SAC, A2C
+from stable_baselines3.common.base_class import BaseAlgorithm
 
-from pyrobosim_ros_gym.envs import get_env_by_name
+from pyrobosim_ros_gym.envs import get_env_by_name, GreenhouseEnv
 
 
 if __name__ == "__main__":
@@ -40,13 +41,14 @@ if __name__ == "__main__":
         env_type,
         node,
         max_steps_per_episode=10,
+        realtime=True,
         discrete_actions=args.discrete_actions,
     )
     env.reset()
 
     # Load a model
     if model_type == "DQN":
-        model = DQN.load(args.model, env=None)
+        model: BaseAlgorithm = DQN.load(args.model, env=None)
     elif model_type == "PPO":
         model = PPO.load(args.model, env=None)
     elif model_type == "SAC":
@@ -73,10 +75,11 @@ if __name__ == "__main__":
         print(f"{truncated=}")
         if terminated:
             num_episodes += 1
-            survived_episodes += not env.dead()
-            watered_plant_percent = env.watered_plant_percent()
-            print(f".. {watered_plant_percent*100}% Plants watered.")
-            watered_perc_s.append(watered_plant_percent)
+            if isinstance(env, GreenhouseEnv):
+                survived_episodes += not env.dead()
+                watered_plant_percent = env.watered_plant_percent()
+                print(f".. {watered_plant_percent*100}% Plants watered.")
+                watered_perc_s.append(watered_plant_percent)
             env.reset(seed=num_episodes)
     print(
         f"{survived_episodes} of {num_episodes} ({100.*survived_episodes/num_episodes}%) episodes survived."
