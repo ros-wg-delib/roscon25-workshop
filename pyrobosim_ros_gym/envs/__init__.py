@@ -60,7 +60,7 @@ def get_env_by_name(
     if base_class is None:
         raise RuntimeError(f"No environment found for {env_name}.")
     sub_type = None
-    for st in base_class.sub_type:
+    for st in base_class.sub_types:
         if st.name == sub_type_str:
             sub_type = st
             break

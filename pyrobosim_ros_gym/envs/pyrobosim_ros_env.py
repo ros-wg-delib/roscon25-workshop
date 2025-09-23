@@ -18,7 +18,7 @@ from pyrobosim_msgs.srv import (
 class PyRoboSimRosEnv(gym.Env):
     """Gym environment wrapping around the PyRoboSim ROS Interface."""
 
-    sub_type = Enum("sub_type", "DEFINE_IN_SUBCLASS")
+    sub_types = Enum("sub_types", "DEFINE_IN_SUBCLASS")
     world_file_path = "DEFINE_IN_SUBCLASS"
 
     def __init__(
@@ -98,30 +98,8 @@ class PyRoboSimRosEnv(gym.Env):
     def _action_space(self):
         raise NotImplementedError("implement in sub-class")
 
-    def get_next_navigation_action(self):
-        self.waypoint_i = (self.waypoint_i + 1) % len(self.waypoints)
-        return self.get_current_navigation_action()
-
-    def get_current_navigation_action(self):
-        return TaskAction(type="navigate", target_location=self.get_current_location())
-
-    def get_current_location(self):
-        return self.waypoints[self.waypoint_i]
-
     def step(self, action):
         raise NotImplementedError("implement in sub-class")
-
-    def go_to_next_wp(self):
-        nav_goal = ExecuteTaskAction.Goal()
-        nav_goal.action = self.get_next_navigation_action()
-        nav_goal.action.robot = "robot"
-        nav_goal.realtime_factor = 1.0 if self.realtime else -1.0
-
-        goal_future = self.execute_action_client.send_goal_async(nav_goal)
-        rclpy.spin_until_future_complete(self.node, goal_future)
-
-        result_future = goal_future.result().get_result_async()
-        rclpy.spin_until_future_complete(self.node, result_future)
 
     def reset(self, seed=None, options=None):
         """Resets the environment with a specified seed and options."""

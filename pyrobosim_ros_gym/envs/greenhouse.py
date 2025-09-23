@@ -19,25 +19,35 @@ from pyrobosim_msgs.srv import (
 
 
 def _dist(a: Point, b: Point) -> float:
+    """Calculate distance between two (geometry_msgs.msg) Points."""
     return np.linalg.norm([a.x - b.x, a.y - b.y, a.z - b.z])
 
 
 class GreenhouseEnv(PyRoboSimRosEnv):
-    sub_type = Enum("sub_type", "Deterministic Random")
+    sub_types = Enum("sub_types", "Deterministic Random")
     world_file_path = os.path.join("rl_ws_worlds", "worlds", "greenhouse.yaml")
 
     def __init__(
         self,
-        sub_type: sub_type,
+        sub_type: sub_types,
         node,
         max_steps_per_episode,
         realtime,
         discrete_actions,
     ):
-        if sub_type == GreenhouseEnv.sub_type.Deterministic:
+        """
+        Instantiate Greenhouse environment.
+
+        :param sub_type: Subtype of this environment, e.g. `GreenhouseEnv.sub_types.Deterministic`.
+        :param node: Node instance needed for ROS communication.
+        :param max_steps_per_episode: Limit the steps (when to end the episode).
+        :param realtime: Whether actions take time.
+        :param discrete_actions: Choose discrete actions (needed for DQN).
+        """
+        if sub_type == GreenhouseEnv.sub_types.Deterministic:
             # TODO
             pass
-        elif sub_type == GreenhouseEnv.sub_type.Random:
+        elif sub_type == GreenhouseEnv.sub_types.Random:
             # TODO
             pass
         else:
@@ -222,3 +232,25 @@ class GreenhouseEnv(PyRoboSimRosEnv):
 
         self.world_state = world_state
         return obs
+
+    def get_next_navigation_action(self):
+        self.waypoint_i = (self.waypoint_i + 1) % len(self.waypoints)
+        return self.get_current_navigation_action()
+
+    def get_current_navigation_action(self):
+        return TaskAction(type="navigate", target_location=self.get_current_location())
+
+    def get_current_location(self):
+        return self.waypoints[self.waypoint_i]
+
+    def go_to_next_wp(self):
+        nav_goal = ExecuteTaskAction.Goal()
+        nav_goal.action = self.get_next_navigation_action()
+        nav_goal.action.robot = "robot"
+        nav_goal.realtime_factor = 1.0 if self.realtime else -1.0
+
+        goal_future = self.execute_action_client.send_goal_async(nav_goal)
+        rclpy.spin_until_future_complete(self.node, goal_future)
+
+        result_future = goal_future.result().get_result_async()
+        rclpy.spin_until_future_complete(self.node, result_future)
