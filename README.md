@@ -16,6 +16,7 @@ apt install -y git curl build-essential
 ```
 -->
 
+<!--- skip-next --->
 ```bash
 sudo apt install build-essential curl
 ```
