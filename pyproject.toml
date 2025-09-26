@@ -9,12 +9,17 @@ requires-python = ">=3.12, <3.13"
 dependencies = ["astar>=0.99,<0.100"]
 
 [tool.pixi.workspace]
+preview = ["pixi-build"]
 channels = ["robostack-kilted", "conda-forge"]
 platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
+
+[tool.pixi.package.build]
+backend = { name = "pixi-build-ros", version = "*" }
 
 [tool.pixi.dependencies]
 python = ">=3.12, <3.13"
 colcon-common-extensions = ">=0.3.0,<0.4"
+compilers = ">=1.11.0,<2"
 pre-commit = ">=4.2.0,<5"
 rich = ">=14.1.0,<15"
 ros-kilted-ros-core = ">=0.12.0,<0.13"
