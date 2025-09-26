@@ -17,6 +17,7 @@ platforms = ["win-64", "linux-64", "osx-64", "osx-arm64"]
 backend = { name = "pixi-build-ros", version = "*" }
 
 [tool.pixi.dependencies]
+python = ">=3.12, <3.13"
 colcon-common-extensions = ">=0.3.0,<0.4"
 compilers = ">=1.11.0,<2"
 pre-commit = ">=4.2.0,<5"
