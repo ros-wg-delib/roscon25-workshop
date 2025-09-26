@@ -1,0 +1,24 @@
+#####################
+# Location metadata #
+#####################
+
+table:
+  footprint:
+    type: box
+    dims: [0.8, 0.8]
+    height: 0.5
+  color: [0.3, 0.2, 0.1]
+  nav_poses:
+    - position:  # left
+        x: -0.6
+        y: 0.0
+    - position:  # right
+        x: 0.6
+        y: 0.0
+      rotation_eul:
+        yaw: 3.14
+  locations:
+    - name: "tabletop"
+      footprint:
+        type: parent
+        padding: 0.05

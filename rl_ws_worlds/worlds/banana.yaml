@@ -4,7 +4,7 @@
 
 # WORLD PARAMETERS
 params:
-  name: test_world
+  name: banana
   object_radius: 0.01  # Radius around objects
   wall_height: 2.0  # Wall height for exporting to Gazebo
 

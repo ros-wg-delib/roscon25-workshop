@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# Copyright (c) 2025, Sebastian Castro, Christian Henkel
+# All rights reserved.
+
+# This source code is licensed under the BSD 3-Clause License.
+# See the LICENSE file in the project root for license information.
+
 """Trains an RL policy."""
 
 import argparse
@@ -12,30 +18,32 @@ from stable_baselines3.common.callbacks import (
     EvalCallback,
     StopTrainingOnRewardThreshold,
 )
+from stable_baselines3.common.base_class import BaseAlgorithm
 from torch import nn
 
-from pyrobosim_ros_env import PyRoboSimRosEnv
-from envs.banana import (
-    banana_picked_reward,
-    banana_on_table_reward,
-    banana_on_table_avoid_soda_reward,
-    avoid_soda_reset_validation,
-)
+from pyrobosim_ros_gym.envs.pyrobosim_ros_env import PyRoboSimRosEnv
+from pyrobosim_ros_gym.envs import get_env_by_name, available_envs_w_subtype
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--env",
-        default="PickBanana",
-        choices=["PickBanana", "PlaceBanana", "PlaceBananaNoSoda"],
+        choices=available_envs_w_subtype(),
         help="The environment to use.",
+        required=True,
     )
     parser.add_argument(
         "--model-type",
         default="DQN",
         choices=["DQN", "PPO", "SAC", "A2C"],
         help="The model type to train.",
+    )
+    parser.add_argument("--total-timesteps", default=100)
+    parser.add_argument(
+        "--discrete_actions",
+        action="store_true",
+        help="If true, uses discrete action space. Otherwise, uses continuous action space.",
     )
     parser.add_argument(
         "--discrete_actions",
@@ -58,29 +66,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Create the environment
-    if args.env == "PickBanana":
-        reward_fn = banana_picked_reward
-        reset_validation_fn = None
-        eval_freq = 1000
-    elif args.env == "PlaceBanana":
-        reward_fn = banana_on_table_reward
-        reset_validation_fn = None
-        eval_freq = 2000
-    elif args.env == "PlaceBananaNoSoda":
-        reward_fn = banana_on_table_avoid_soda_reward
-        reset_validation_fn = avoid_soda_reset_validation
-        eval_freq = 2000
-    else:
-        raise ValueError(f"Invalid environment name: {args.env}")
-
     rclpy.init()
     node = Node("pyrobosim_ros_env")
-    env = PyRoboSimRosEnv(
+    env = get_env_by_name(
+        args.env,
         node,
-        reward_fn=reward_fn,
-        reset_validation_fn=reset_validation_fn,
-        realtime=args.realtime,
         max_steps_per_episode=25,
+        realtime=False,
         discrete_actions=args.discrete_actions,
     )
 
@@ -89,23 +81,22 @@ if __name__ == "__main__":
     if args.model_type == "DQN":
         policy_kwargs = {
             "activation_fn": nn.ReLU,
-            "net_arch": [64, 64],
+            "net_arch": [8, 4],
         }
-        model = DQN(
+        model: BaseAlgorithm = DQN(
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            policy_kwargs=policy_kwargs,
+            # policy_kwargs=policy_kwargs,
             gamma=0.99,
             exploration_initial_eps=0.75,
             exploration_final_eps=0.05,
             exploration_fraction=0.25,
-            learning_starts=100,
-            learning_rate=0.0001,
-            batch_size=32,
-            gradient_steps=10,
-            train_freq=(4, "step"),
-            target_update_interval=500,
+            learning_starts=args.total_timesteps // 4,
+            learning_rate=0.001,
+            batch_size=2,
+            train_freq=(1, "step"),
+            target_update_interval=1,
             tensorboard_log=log_path,
         )
     elif args.model_type == "PPO":
@@ -123,8 +114,8 @@ if __name__ == "__main__":
             policy_kwargs=policy_kwargs,
             gamma=0.99,
             learning_rate=0.0003,
-            batch_size=32,
-            n_steps=64,
+            batch_size=2,
+            n_steps=2,
             tensorboard_log=log_path,
         )
     elif args.model_type == "SAC":
@@ -163,6 +154,8 @@ if __name__ == "__main__":
             policy_kwargs=policy_kwargs,
             learning_rate=0.0007,
             gamma=0.99,
+            # n_steps=1,
+            stats_window_size=2,
             tensorboard_log=log_path,
         )
     else:
@@ -175,7 +168,7 @@ if __name__ == "__main__":
         env,
         callback_on_new_best=callback_on_best,
         n_eval_episodes=10,
-        eval_freq=eval_freq,
+        eval_freq=1000,
         verbose=1,
     )
 
