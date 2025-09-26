@@ -76,6 +76,15 @@ jobs:
         with:
           name: slides.pdf
           path: slides.pdf
+      - name: Slides as release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'slides.pdf'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit: ${{ github.sha }}
+          allowUpdates: true
+          name: Workshop Slides
+          makeLatest: ${{ github.ref == 'refs/heads/main' }}
   doc_test:
     runs-on: ubuntu-latest
     steps:
