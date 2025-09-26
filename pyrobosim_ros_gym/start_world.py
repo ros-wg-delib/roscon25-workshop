@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# Copyright (c) 2025, Sebastian Castro, Christian Henkel
+# All rights reserved.
+
+# This source code is licensed under the BSD 3-Clause License.
+# See the LICENSE file in the project root for license information.
+
 """Loads a world to act as a server for the RL problem."""
 
 import argparse
