@@ -33,10 +33,15 @@ jobs:
         run: pixi run lint
       - name: Build the environment
         run: pixi run build
-  lint:
+  slides:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      - name: Pre-commit
-        uses: pre-commit/action@v3.0.1
+      - uses: maxheld83/pandoc@v2.1.0
+        with:
+          args: "-t beamer main.md -o slides.pdf"
+      - uses: actions/upload-artifact@main
+        with:
+          name: slides.pdf
+          path: slides.pdf

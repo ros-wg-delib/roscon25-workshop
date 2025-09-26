@@ -11,3 +11,6 @@ log/
 # Model checkpoints and logging
 train_logs/
 *.pt
+
+# Slides
+slides/*.pdf
