@@ -20,7 +20,7 @@ from pyrobosim_msgs.srv import (
 
 def _dist(a: Point, b: Point) -> float:
     """Calculate distance between two (geometry_msgs.msg) Points."""
-    return np.linalg.norm([a.x - b.x, a.y - b.y, a.z - b.z])
+    return float(np.linalg.norm([a.x - b.x, a.y - b.y, a.z - b.z]))
 
 
 class GreenhouseEnv(PyRoboSimRosEnv):

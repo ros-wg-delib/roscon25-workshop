@@ -15,7 +15,7 @@ def available_envs_w_subtype() -> List[str]:
     """Return a list of environment types including subtypes."""
     envs: List[str] = []
     for name, env_class in ENV_CLASS_FROM_NAME.items():
-        for sub_type in env_class.sub_type:
+        for sub_type in env_class.sub_types:
             envs.append("".join((name, sub_type.name)))
     return envs
 
