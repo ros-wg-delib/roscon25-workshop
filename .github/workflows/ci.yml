@@ -63,7 +63,6 @@ jobs:
           docker push ${{ env.REGISTRY_IMAGE }}:latest
           echo "TAG_NAME=latest" >> $GITHUB_ENV
         if: github.ref == 'refs/heads/main'
-
   slides:
     runs-on: ubuntu-latest
     steps:
@@ -71,14 +70,16 @@ jobs:
         uses: actions/checkout@v4
       - uses: maxheld83/pandoc@v2.1.0
         with:
-          args: "-t beamer main.md -o slides.pdf"
+          args: "-t beamer slides/main.md -o slides.pdf"
       - uses: actions/upload-artifact@main
         with:
           name: slides.pdf
           path: slides.pdf
-  pytest:
+  doc_test:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
       - name: Install python
         uses: actions/setup-python@v6
         with:
