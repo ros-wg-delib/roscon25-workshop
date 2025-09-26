@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-## @file
-# Copyright (c) 2024, Sebastian Castro, The AI Institute
-# SPDX-License-Identifier: BSD-3-Clause
-##
+
+# Copyright (c) 2025, Sebastian Castro, Christian Henkel
+# All rights reserved.
+
+# This source code is licensed under the BSD 3-Clause License.
+# See the LICENSE file in the project root for license information.
 
 """
 Runner for ROS 2 Deliberation workshop worlds.

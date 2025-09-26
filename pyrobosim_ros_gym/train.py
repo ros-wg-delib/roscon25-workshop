@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# Copyright (c) 2025, Sebastian Castro, Christian Henkel
+# All rights reserved.
+
+# This source code is licensed under the BSD 3-Clause License.
+# See the LICENSE file in the project root for license information.
+
 """Trains an RL policy."""
 
 import argparse
@@ -12,6 +18,7 @@ from stable_baselines3.common.callbacks import (
     EvalCallback,
     StopTrainingOnRewardThreshold,
 )
+from stable_baselines3.common.base_class import BaseAlgorithm
 from torch import nn
 
 from pyrobosim_ros_gym.envs.pyrobosim_ros_env import PyRoboSimRosEnv
@@ -65,6 +72,7 @@ if __name__ == "__main__":
         args.env,
         node,
         max_steps_per_episode=25,
+        realtime=False,
         discrete_actions=args.discrete_actions,
     )
 
@@ -75,7 +83,7 @@ if __name__ == "__main__":
             "activation_fn": nn.ReLU,
             "net_arch": [8, 4],
         }
-        model = DQN(
+        model: BaseAlgorithm = DQN(
             "MlpPolicy",
             env=env,
             seed=args.seed,

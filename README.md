@@ -6,7 +6,7 @@ This repository contains materials for the [ROSCon 2025](https://roscon.ros.org/
 
 This repo uses Pixi and RoboStack along with ROS 2 Kilted.
 
-First, clone the repo including submodules.
+First, install dependencies on your system (assuming you are using Linux).
 
 <!--- new-env: ubuntu:latest --->
 <!--
@@ -17,7 +17,7 @@ apt install -y git curl build-essential
 -->
 
 ```bash
-git clone --recurse-submodules https://github.com/ros-wg-delib/roscon25-workshop.git
+sudo apt install build-essential curl
 ```
 
 Then, install Pixi.
@@ -32,6 +32,12 @@ This is necessary to make pixi work ...
 echo 'export PATH=\"/root/.pixi/bin:$PATH\"' >> /root/.bashrc
 ```
 -->
+
+Clone the repo including submodules.
+
+```bash
+git clone --recursive https://github.com/ros-wg-delib/roscon25-workshop.git
+```
 
 Build the environment.
 

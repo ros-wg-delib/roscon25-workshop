@@ -18,26 +18,35 @@ from pyrobosim_ros_gym.envs.pyrobosim_ros_env import PyRoboSimRosEnv
 
 
 class BananaEnv(PyRoboSimRosEnv):
-    sub_type = Enum("sub_type", "Pick Place PlaceNoSoda")
+    sub_types = Enum("sub_types", "Pick Place PlaceNoSoda")
     world_file_path = os.path.join("rl_ws_worlds", "worlds", "banana.yaml")
 
     def __init__(
         self,
-        sub_type: sub_type,
+        sub_type: sub_types,
         node,
         max_steps_per_episode,
         realtime,
         discrete_actions,
     ):
-        if sub_type == BananaEnv.sub_type.Pick:
+        """
+        Instantiate Banana environment.
+
+        :param sub_types: Subtype of this environment (e.g. `BananaEnv.sub_types.Pick`).
+        :param node: Node instance needed for ROS communication.
+        :param max_steps_per_episode: Limit the steps (when to end the episode).
+        :param realtime: Whether actions take time.
+        :param discrete_actions: Choose discrete actions (needed for DQN).
+        """
+        if sub_type == BananaEnv.sub_types.Pick:
             reward_fn = banana_picked_reward
             reset_validation_fn = None
             # eval_freq = 1000
-        elif sub_type == BananaEnv.sub_type.Place:
+        elif sub_type == BananaEnv.sub_types.Place:
             reward_fn = banana_on_table_reward
             reset_validation_fn = None
             # eval_freq = 2000
-        elif sub_type == BananaEnv.sub_type.PlaceNoSoda:
+        elif sub_type == BananaEnv.sub_types.PlaceNoSoda:
             reward_fn = banana_on_table_avoid_soda_reward
             reset_validation_fn = avoid_soda_reset_validation
             # eval_freq = 2000
@@ -67,7 +76,7 @@ class BananaEnv(PyRoboSimRosEnv):
         #  Type of object robot is holding (if any)
         #  Whether there is at least one of a specific object type at each location
         self.obs_size = (
-            +self.num_locations  # Number of locations robot can be in
+            self.num_locations  # Number of locations robot can be in
             + self.num_object_types  # Object types robot is holding
             + (
                 self.num_locations * self.num_object_types

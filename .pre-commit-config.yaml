@@ -1,5 +1,4 @@
 repos:
-
   # Runs pre-commit hooks and other file format checks.
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -35,6 +34,13 @@ repos:
       - id: black
         exclude: ^pyrobosim/
 
+  # Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.18.2
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports]
+
   # Finds spelling issues in code.
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
@@ -51,7 +57,8 @@ repos:
           [
             "--no-warnings",
             "--config-data",
-            "{extends: default, rules: {line-length: disable, braces: {max-spaces-inside: 1}, indentation: disable}}",
+            "{extends: default, rules: {line-length: disable, braces:
+            {max-spaces-inside: 1}, indentation: disable}}",
           ]
         types: [text]
         files: \.(yml|yaml)$

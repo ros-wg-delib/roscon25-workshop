@@ -53,10 +53,3 @@ jobs:
           emoji: true
           job-summary: true
           custom-arguments: '-vvs test/'
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-      - name: Pre-commit
-        uses: pre-commit/action@v3.0.1

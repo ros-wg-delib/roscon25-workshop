@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# Copyright (c) 2025, Sebastian Castro, Christian Henkel
+# All rights reserved.
+
+# This source code is licensed under the BSD 3-Clause License.
+# See the LICENSE file in the project root for license information.
+
 """Loads a world to act as a server for the RL problem."""
 
 import argparse
@@ -11,7 +17,7 @@ from pyrobosim.core import WorldYamlLoader
 from pyrobosim.gui import start_gui
 from pyrobosim_ros.ros_interface import WorldROSWrapper
 
-from pyrobosim_ros_gym.envs import get_env_class_by_name, available_env_classes
+from pyrobosim_ros_gym.envs import get_env_env_class_from_name, available_env_classes
 
 
 def create_ros_node(world_file_path) -> WorldROSWrapper:
@@ -34,7 +40,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    env_class = get_env_class_by_name(args.env)
+    env_class = get_env_env_class_from_name(args.env)
     node = create_ros_node(env_class.world_file_path)
 
     if args.headless:
