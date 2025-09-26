@@ -84,6 +84,7 @@ jobs:
           commit: ${{ github.sha }}
           allowUpdates: true
           name: Workshop Slides
+          tag: ${{ env.RAW_BRANCH_NAME }}
           makeLatest: ${{ github.ref == 'refs/heads/main' }}
   doc_test:
     runs-on: ubuntu-latest
