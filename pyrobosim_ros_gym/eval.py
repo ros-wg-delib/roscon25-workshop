@@ -15,14 +15,14 @@ from rclpy.node import Node
 from stable_baselines3 import DQN, PPO, SAC, A2C
 from stable_baselines3.common.base_class import BaseAlgorithm
 
-from pyrobosim_ros_gym.envs import get_env_by_name, GreenhouseEnv
+from pyrobosim_ros_gym.envs import get_env_by_name, BananaEnv, GreenhouseEnv
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", help="The name of the model to evaluate.")
     parser.add_argument(
-        "--discrete_actions",
+        "--discrete-actions",
         action="store_true",
         help="If true, uses discrete action space. Otherwise, uses continuous action space.",
     )
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         print(f"{obs=}")
         action, _ = model.predict(obs, deterministic=True)
         print(f"{action=}")
-        obs, reward, terminated, truncated, _ = env.step(action)
+        obs, reward, terminated, truncated, info = env.step(action)
 
         print(f"{reward=}")
         print(f"{terminated=}")
@@ -86,10 +86,15 @@ if __name__ == "__main__":
                 watered_plant_percent = env.watered_plant_percent()
                 print(f".. {watered_plant_percent*100}% Plants watered.")
                 watered_perc_s.append(watered_plant_percent)
+            elif isinstance(env, BananaEnv):
+                survived_episodes += info["success"]
+
             env.reset(seed=num_episodes)
+
     print(
-        f"{survived_episodes} of {num_episodes} ({100.*survived_episodes/num_episodes}%) episodes survived."
+        f"{survived_episodes} of {num_episodes} ({100.0*survived_episodes/num_episodes}%) episodes survived."
     )
-    print(f"{watered_perc_s=}")
+    if isinstance(env, GreenhouseEnv):
+        print(f"{watered_perc_s=}")
 
     rclpy.shutdown()

@@ -6,15 +6,10 @@ import rclpy
 import numpy as np
 from gymnasium import spaces
 from pyrobosim_msgs.action import ExecuteTaskAction
-from pyrobosim_msgs.msg import ExecutionResult, ObjectState, TaskAction, WorldState
-from pyrobosim_msgs.srv import (
-    RequestWorldInfo,
-    RequestWorldState,
-    ResetWorld,
-    SetLocationState,
-)
+from pyrobosim_msgs.msg import ExecutionResult, TaskAction
+from pyrobosim_msgs.srv import RequestWorldState, ResetWorld
 
-from pyrobosim_ros_gym.envs.pyrobosim_ros_env import PyRoboSimRosEnv
+from .pyrobosim_ros_env import PyRoboSimRosEnv
 
 
 class BananaEnv(PyRoboSimRosEnv):
@@ -121,7 +116,7 @@ class BananaEnv(PyRoboSimRosEnv):
 
         goal = ExecuteTaskAction.Goal()
         if self.discrete_actions:
-            goal.action = self.integer_to_action[action]
+            goal.action = self.integer_to_action[int(action)]
         else:
             goal.action = self.integer_to_action[np.argmax(action)]
         goal.action.robot = "robot"

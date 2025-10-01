@@ -67,16 +67,16 @@ pixi shell
 
 <!--- skip-next --->
 ```bash
-pixi run start_world --headless
+pixi run start_world --env Banana --headless
 ```
 
-### Choose modely type
+### Choose model type
 
 For example PPO
 
 <!--- skip-next --->
 ```bash
-pixi run train --env PickBanana --model-type PPO --log
+pixi run train --env BananaPick --model-type PPO --log
 ```
 
 Or DQN.
