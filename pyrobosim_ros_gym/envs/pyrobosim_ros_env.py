@@ -1,12 +1,9 @@
 import gymnasium as gym
-import numpy as np
-from gymnasium import spaces
 from enum import Enum
 import rclpy
 from rclpy.action import ActionClient
 
 from pyrobosim_msgs.action import ExecuteTaskAction
-from pyrobosim_msgs.msg import ExecutionResult, TaskAction, WorldState, ObjectState
 from pyrobosim_msgs.srv import (
     RequestWorldInfo,
     RequestWorldState,

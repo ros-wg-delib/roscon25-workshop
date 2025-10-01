@@ -1,8 +1,8 @@
 # Problem 1 World
 
 metadata:
-   locations: $PWD/location_data.yaml
-   objects: $PWD/object_data.yaml
+   locations: $PWD/greenhouse_location_data.yaml
+   objects: $PWD/greenhouse_object_data.yaml
 
 params:
   name: greenhouse
@@ -17,8 +17,8 @@ robots:
       type: constant_velocity
     path_planner:
       type: astar
-      grid_resolution: .1
-      grid_inflation_radius: .1
+      grid_resolution: 0.1
+      grid_inflation_radius: 0.1
     action_execution_options:
       close:
         battery_usage: 20
@@ -42,7 +42,7 @@ rooms:
         rotation_eul:
           yaw: 3.14
     wall_width: 0.2
-    color: [.1, .1, 0]
+    color: [0.1, 0.1, 0]
 
 locations:
     - name: table_nw

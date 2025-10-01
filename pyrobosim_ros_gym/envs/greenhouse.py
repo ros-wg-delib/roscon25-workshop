@@ -4,18 +4,13 @@ import numpy as np
 import rclpy
 from geometry_msgs.msg import Point
 from gymnasium import spaces
-from pyrobosim_msgs.msg import ExecutionResult, ObjectState, TaskAction, WorldState
+from pyrobosim_msgs.msg import TaskAction, WorldState
 
-from pyrobosim_ros_gym.envs.pyrobosim_ros_env import PyRoboSimRosEnv
+from .pyrobosim_ros_env import PyRoboSimRosEnv
 
 from pyrobosim_msgs.action import ExecuteTaskAction
-from pyrobosim_msgs.msg import ExecutionResult, TaskAction, WorldState, ObjectState
-from pyrobosim_msgs.srv import (
-    RequestWorldInfo,
-    RequestWorldState,
-    ResetWorld,
-    SetLocationState,
-)
+from pyrobosim_msgs.msg import TaskAction, WorldState
+from pyrobosim_msgs.srv import RequestWorldState, ResetWorld
 
 
 def _dist(a: Point, b: Point) -> float:

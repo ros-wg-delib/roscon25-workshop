@@ -1,9 +1,11 @@
 from typing import List, Dict
 
-from pyrobosim_ros_gym.envs.banana import BananaEnv
-from pyrobosim_ros_gym.envs.greenhouse import GreenhouseEnv
-from pyrobosim_ros_gym.envs.pyrobosim_ros_env import PyRoboSimRosEnv
 import rclpy
+
+from .banana import BananaEnv
+from .greenhouse import GreenhouseEnv
+from .pyrobosim_ros_env import PyRoboSimRosEnv
+
 
 ENV_CLASS_FROM_NAME: Dict[str, type[PyRoboSimRosEnv]] = {
     "Banana": BananaEnv,
@@ -35,7 +37,7 @@ def get_env_env_class_from_name(req_name: str):
 
 def get_env_by_name(
     env_name: str,
-    node: rclpy.Node,
+    node: rclpy.node.Node,
     max_steps_per_episode: int,
     realtime: bool,
     discrete_actions: bool,
