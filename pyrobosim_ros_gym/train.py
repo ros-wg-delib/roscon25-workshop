@@ -10,6 +10,9 @@
 
 import argparse
 from datetime import datetime
+import importlib
+import os
+from typing import Any
 
 import rclpy
 from rclpy.node import Node
@@ -19,12 +22,13 @@ from stable_baselines3.common.callbacks import (
     StopTrainingOnRewardThreshold,
 )
 from stable_baselines3.common.base_class import BaseAlgorithm
-from torch import nn
+import yaml
 
 from pyrobosim_ros_gym.envs import get_env_by_name, available_envs_w_subtype
 
 
-if __name__ == "__main__":
+def get_args() -> argparse.Namespace:
+    """Helper function to parse the command-line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--env",
@@ -33,22 +37,20 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
+        "--config",
+        help="Path to the training configuration YAML file.",
+        required=True,
+    )
+    parser.add_argument(
         "--model-type",
         default="DQN",
         choices=["DQN", "PPO", "SAC", "A2C"],
         help="The model type to train.",
     )
-    parser.add_argument("--total-timesteps", default=100)
     parser.add_argument(
         "--discrete-actions",
         action="store_true",
         help="If true, uses discrete action space. Otherwise, uses continuous action space.",
-    )
-    parser.add_argument(
-        "--max-timesteps",
-        default=25000,
-        type=int,
-        help="The maximum number of timesteps to train for.",
     )
     parser.add_argument("--seed", default=42, type=int, help="The RNG seed to use.")
     parser.add_argument(
@@ -58,6 +60,37 @@ if __name__ == "__main__":
         "--log", action="store_true", help="If true, logs data to Tensorboard."
     )
     args = parser.parse_args()
+    return args
+
+
+def get_config(config_path: str) -> dict[str, Any]:
+    """Helper function to parse the configuration YAML file."""
+    config_path = args.config
+    if not os.path.isabs(config_path):
+        default_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "config"
+        )
+        config_path = os.path.join(default_path, config_path)
+    with open(config_path, "r") as file:
+        config = yaml.safe_load(file)
+
+    # Handle special case of policy_kwargs activation function needing to be a class instance.
+    for subtype in config.get("training", {}):
+        subtype_config = config["training"][subtype]
+        if not isinstance(subtype_config, dict):
+            continue
+        policy_kwargs = subtype_config.get("policy_kwargs", {})
+        if "activation_fn" in policy_kwargs:
+            module_name, class_name = policy_kwargs["activation_fn"].rsplit(".", 1)
+            module = importlib.import_module(module_name)
+            policy_kwargs["activation_fn"] = getattr(module, class_name)
+
+    return config
+
+
+if __name__ == "__main__":
+    args = get_args()
+    config = get_config(args.config)
 
     # Create the environment
     rclpy.init()
@@ -73,103 +106,74 @@ if __name__ == "__main__":
     # Train a model
     log_path = "train_logs" if args.log else None
     if args.model_type == "DQN":
-        policy_kwargs = {
-            "activation_fn": nn.ReLU,
-            "net_arch": [8, 4],
-        }
+        dqn_config = config.get("training", {}).get("DQN", {})
+        if "policy_kwargs" in dqn_config:
+            policy_kwargs = dqn_config["policy_kwargs"]
+            del dqn_config["policy_kwargs"]
         model: BaseAlgorithm = DQN(
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            # policy_kwargs=policy_kwargs,
-            gamma=0.99,
-            exploration_initial_eps=0.75,
-            exploration_final_eps=0.05,
-            exploration_fraction=0.25,
-            learning_starts=args.total_timesteps // 4,
-            learning_rate=0.001,
-            batch_size=2,
-            train_freq=(1, "step"),
-            target_update_interval=1,
             tensorboard_log=log_path,
+            **dqn_config,
         )
     elif args.model_type == "PPO":
-        policy_kwargs = {
-            "activation_fn": nn.ReLU,
-            "net_arch": {
-                "pi": [64, 64],  # actor
-                "vf": [64, 32],  # critic
-            },
-        }
+        ppo_config = config.get("training", {}).get("PPO", {})
+        if "policy_kwargs" in ppo_config:
+            policy_kwargs = ppo_config["policy_kwargs"]
+            del ppo_config["policy_kwargs"]
         model = PPO(
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            policy_kwargs=policy_kwargs,
-            gamma=0.99,
-            learning_rate=0.0003,
-            batch_size=2,
-            n_steps=2,
             tensorboard_log=log_path,
+            **ppo_config,
         )
     elif args.model_type == "SAC":
-        policy_kwargs = {
-            "activation_fn": nn.ReLU,
-            "net_arch": {
-                "pi": [64, 64],  # actor
-                "qf": [64, 32],  # critic (SAC uses qf, not vf)
-            },
-        }
+        sac_config = config.get("training", {}).get("SAC", {})
+        if "policy_kwargs" in sac_config:
+            policy_kwargs = sac_config["policy_kwargs"]
+            del sac_config["policy_kwargs"]
         model = SAC(
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            policy_kwargs=policy_kwargs,
-            learning_rate=0.0003,
-            gamma=0.99,
-            batch_size=32,
-            gradient_steps=10,
-            train_freq=(4, "step"),
-            target_update_interval=50,
             tensorboard_log=log_path,
+            **sac_config,
         )
     elif args.model_type == "A2C":
-        policy_kwargs = {
-            "activation_fn": nn.ReLU,
-            "net_arch": {
-                "pi": [64, 64],  # actor
-                "vf": [64, 32],  # critic
-            },
-        }
+        a2c_config = config.get("training", {}).get("A2C", {})
+        if "policy_kwargs" in a2c_config:
+            policy_kwargs = a2c_config["policy_kwargs"]
+            del a2c_config["policy_kwargs"]
         model = A2C(
             "MlpPolicy",
             env=env,
             seed=args.seed,
-            policy_kwargs=policy_kwargs,
-            learning_rate=0.0007,
-            gamma=0.99,
-            # n_steps=1,
-            stats_window_size=2,
             tensorboard_log=log_path,
+            **a2c_config,
         )
     else:
         raise RuntimeError(f"Invalid model type: {args.model_type}")
     print(f"\nTraining with {args.model_type}...\n")
 
     # Train the model until it exceeds a specified reward threshold
-    callback_on_best = StopTrainingOnRewardThreshold(reward_threshold=9.5, verbose=1)
+    training_config = config["training"]
+    callback_on_best = StopTrainingOnRewardThreshold(
+        reward_threshold=training_config["reward_threshold"],
+        verbose=1,
+    )
     eval_callback = EvalCallback(
         env,
         callback_on_new_best=callback_on_best,
-        n_eval_episodes=10,
-        eval_freq=1000,
         verbose=1,
+        **training_config.get("eval", {}),
     )
 
     date_str = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     log_name = f"{args.env}_{args.model_type}_{date_str}"
     model.learn(
-        total_timesteps=args.max_timesteps,
+        total_timesteps=training_config["max_training_steps"],
         progress_bar=True,
         tb_log_name=log_name,
         callback=eval_callback,

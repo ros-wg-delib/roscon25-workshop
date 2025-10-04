@@ -79,7 +79,7 @@ if __name__ == "__main__":
         print(f"{reward=}")
         print(f"{terminated=}")
         print(f"{truncated=}")
-        if terminated:
+        if terminated or truncated:
             num_episodes += 1
             if isinstance(env, GreenhouseEnv):
                 survived_episodes += not env.dead()
