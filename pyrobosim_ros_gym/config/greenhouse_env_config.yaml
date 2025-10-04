@@ -1,0 +1,55 @@
+# Training configuration for the greenhouse test environment
+
+training:
+  # General training algorithms
+  max_training_steps: 100
+  reward_threshold: 10.00  # Mean reward to terminate training
+
+  # Evaluations during training
+  eval:
+    n_eval_episodes: 10
+    eval_freq: 1000
+
+  # Individual algorithm options
+  DQN:
+    gamma: 0.99
+    exploration_initial_eps: 0.75
+    exploration_final_eps: 0.05
+    exploration_fraction: 0.25
+    learning_starts: 10
+    learning_rate: 0.001
+    batch_size: 2
+    train_freq: 1  # steps
+    target_update_interval: 1
+    policy_kwargs:
+      activation_fn: torch.nn.ReLU
+      net_arch": [8, 4]
+
+  PPO:
+    gamma: 0.99
+    learning_rate: 0.0003
+    batch_size: 2
+    n_steps: 2
+    policy_kwargs:
+      activation_fn: torch.nn.ReLU
+      pi: [8, 4]  # actor size
+      vf: [8, 4]  # critic size
+
+  SAC:
+    gamma: 0.99
+    learning_rate: 0.0003
+    batch_size: 2
+    train_freq: 4  # steps
+    target_update_interval: 50
+    policy_kwargs:
+      activation_fn: torch.nn.ReLU
+      pi: [8, 4]  # actor size
+      qf: [8, 4]  # critic size (SAC uses qf, not vf)
+
+  A2C:
+    gamma: 0.99
+    learning_rate: 0.0007
+    policy_kwargs:
+      activation_fn: torch.nn.ReLU
+      pi: [8, 4]  # actor size
+      vf: [8, 4]  # critic size

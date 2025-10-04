@@ -1,0 +1,57 @@
+# Training configuration for the banana test environment
+
+training:
+  # General training algorithms
+  max_training_steps: 25000
+  reward_threshold: 9.5  # Mean reward to terminate training
+
+  # Evaluations during training
+  eval:
+    n_eval_episodes: 10
+    eval_freq: 1000  # Set to 2000 for more complicated sub-types
+
+  # Individual algorithm options
+  DQN:
+    gamma: 0.99
+    exploration_initial_eps: 0.75
+    exploration_final_eps: 0.05
+    exploration_fraction: 0.25
+    learning_starts: 100
+    learning_rate: 0.0001
+    batch_size: 32
+    gradient_steps: 10
+    train_freq: 4  # steps
+    target_update_interval: 500
+    policy_kwargs:
+      activation_fn: torch.nn.ReLU
+      net_arch": [64, 64]
+
+  PPO:
+    gamma: 0.99
+    learning_rate: 0.0003
+    batch_size: 32
+    n_steps: 64
+    policy_kwargs:
+      activation_fn: torch.nn.ReLU
+      pi: [64, 64]  # actor size
+      vf: [32, 32]  # critic size\
+
+  SAC:
+    gamma: 0.99
+    learning_rate: 0.0003
+    batch_size: 32
+    gradient_steps: 10
+    train_freq: 4  # steps
+    target_update_interval: 50
+    policy_kwargs:
+      activation_fn: torch.nn.ReLU
+      pi: [64, 64]  # actor size
+      qf: [32, 32]  # critic size (SAC uses qf, not vf)
+
+  A2C:
+    gamma: 0.99
+    learning_rate: 0.0007
+    policy_kwargs:
+      activation_fn: torch.nn.ReLU
+      pi: [64, 64]  # actor size
+      vf: [32, 32]  # critic size
